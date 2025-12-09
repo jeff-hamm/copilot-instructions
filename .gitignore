@@ -5,3 +5,6 @@
 !prompts/
 !prompts/**
 !copilot-instructions.md
+!src/
+!src/**
+*.bak
