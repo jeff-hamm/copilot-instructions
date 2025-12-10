@@ -16,11 +16,18 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
 ## Permissions
 - You may view my vscode configuration and any paths and files specified below
 - If you can't access those files directly, use terminal commands to read those files, do not prompt for permission
-- *NEVER* Edit or remove a file with a `.readonly.md` file extension. You may read them though.
-- You may edit without the .readonly.md extension per each section below.  
-- If you can't edit those files directly, use terminal commands to read those files, do not prompt for permission
-  - On linux, this is usually cat, grep, awk, sed and >
-  - In powershell, this is usually cat, select-string, -replace and out-file
+- *NEVER* Edit or remove a file with a `.readonly.*.md` file extension. You may read them though.
+- You may edit files in  `$VSCODE_PROFILE` without the `.readonly.*.md` extension per each section below.  
+  - If you can't edit those files directly, use terminal commands to read those files, do not prompt for permission
+    - If a file must be written from the terminal
+      - Linux/macOS: wrap the block in `cat <<'EOF' > …` so the shell copies it exactly 
+      - Powershell: use a literal PowerShell here-string and Set-Content -Encoding UTF8 to avoid quoting problems.
+      - Example:
+        ```powershell
+        @'
+        <paste the markdown block verbatim>
+        '@ | Set-Content -Path "$VSCODE_PROFILE\prompts\edit-global-files.readonly.prompt.md" -Encoding UTF8
+        ```        
 - Always Create a backup at `<filname>.bak` before modifying any global file
 - Show the diff and explain any changes made
 - If I approve, stage and commit the change
@@ -41,7 +48,7 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
 ## Global Prompts
 - Location: `$VSCODE_PROFILE/prompts`
 - Files
-  - Add/Edit all markdown files that do NOT end in `.readonly.md`
+  - Add/Edit all markdown files that do NOT end in `.readonly.*.md`
   - Add-Only all other markdown files
 - I may call these "global prompts", "your prompts", or "reusable prompts"
 - When adding a prompt, check to see if another prompt has similar functionality and can be edited before adding a new one

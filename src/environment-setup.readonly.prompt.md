@@ -13,4 +13,4 @@
 - Set my global `github.copilot.chat.codeGeneration.useInstructionFiles` setting to `true`
 - If it doesn't already exist, append `$VSCODE_PROFILE/instructions` to the global setting `github.copilot.chat.codeGeneration.instructions` and `chat.instructionsFilesLocations` lists
 - If it doesn't already exist, append `$VSCODE_PROFILE/prompts` to the global setting `chat.promptFilesLocations` list
-- If `$VSCODE_PROFILE/instructions/global-instructions.readonly.md` file is missing, create it and copy the full contents of `global-instructions.readonly.md` into it, preserving the `applyTo: "**"` header"
+- If `$VSCODE_PROFILE/instructions/global.readonly.instructions.md` file is missing, create it and copy the full contents of `global.readonly.instructions.md` into it, preserving the `applyTo: "**"` header"
