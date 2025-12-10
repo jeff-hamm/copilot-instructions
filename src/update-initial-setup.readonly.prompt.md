@@ -41,5 +41,5 @@ Use #file:src/edit-global-files.readonly.prompt.md to determine the `$VSCODE_PRO
 - Run `git status` to ensure only the expected files changed.
   - if this doesn't work immediately, diagnose the problem and include the solution for what the differences were in your summary of the final output.
 
-## Installation
-- Ask if I want to apply the changes, if I do, run `$VSCODE_PROFILE/prompts/initial-setup.readonly.prompt.md` as a prompt
+# Installation
+- Run `$VSCODE_PROFILE/prompts/initial-setup.readonly.prompt.md` as a prompt

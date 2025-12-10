@@ -28,9 +28,9 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
         <paste the markdown block verbatim>
         '@ | Set-Content -Path "$VSCODE_PROFILE\prompts\edit-global-files.readonly.prompt.md" -Encoding UTF8
         ```        
-- Always Create a backup at `<filname>.bak` before modifying any global file
-- Show the diff and explain any changes made
-- If I approve, stage and commit the change
+- Always Create a backup at `<filname>.bak` before modifying any global file. If that file exists, rename to `<filename>.bak.tmp` (if that exists, delete it)
+  - Show the diff and explain any changes made
+  - If I approve, remove commit the change, if not, revert it by renaming `<filename>.back` to `<filename>` and `<filename>.bak.tmp` to `<filename>.bak`
 
 ## Global Settings
 - Files: `$VSCODE_PROFILE/settings.json`, `$VSCODE_PROFILE/tasks.json`, `$VSCODE_PROFILE/mcp.json`
