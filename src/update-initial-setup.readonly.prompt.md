@@ -33,13 +33,20 @@ Use #file:src/edit-global-files.readonly.prompt.md to determine the `$VSCODE_PRO
       ```
    5. Under `### prompts/edit-global-files.readonly.prompt.md`, embed a second copy of `edit-global-files.readonly.prompt.md` in a fenced `markdown` block whose contents are copied directly from `edit-global-files.readonly.prompt.md`.
    - Under `### instructions/global-file.readonly.instructions.md`, embed a fenced `markdown` block copied directly from `global-file.readonly.instructions.md`.
-3. Save the file and confirm each embedded block and the start of the file matches its source byte-for-byte before staging.
+3. Create backup before modifying:
+   - If `$VSCODE_PROFILE/prompts/initial-setup.readonly.prompt.md.bak` exists, rename to `.bak.tmp` (delete `.bak.tmp` if it exists)
+   - Save the current HEAD version to `.bak`
+4. Save the regenerated file and confirm each embedded block and the start of the file matches its source byte-for-byte.
 
-## Verification
+## Verification and Commit
 
 - Diff `initial-setup.readonly.prompt.md` against the source prompts to confirm the embedded blocks are identical.
 - Run `git status` to ensure only the expected files changed.
-  - if this doesn't work immediately, diagnose the problem and include the solution for what the differences were in your summary of the final output.
+- Show the diff summary with git diff --stat
+- Explain the changes made
+- Stage the changes with `git add .`
+- Commit with an appropriate message.
+- If verification fails, diagnose the problem and include the solution for what the differences were in your summary.
 
 # Installation
 - Run `$VSCODE_PROFILE/prompts/initial-setup.readonly.prompt.md` as a prompt

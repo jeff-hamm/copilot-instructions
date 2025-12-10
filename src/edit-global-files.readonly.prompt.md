@@ -12,7 +12,19 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
     - setting.json for a key indicating the current profile
     - profiles.json for the current profile
   3. If you cannot determine the profile path, use the VSCode base settings path
-
+  4. Once you have that path, make sure it is a git repository.
+    - If `$VSCODE_PROFILE` is not a git repository, clone it from https://github.com/jeff-hamm/copilot-instructions, or, if that fails, initialize a new git repository there
+      - If you create it, the .gitignore should be
+        ```
+        *
+        !.gitignore
+        !instructions/
+        !instructions/**
+        !prompts/
+        !prompts/**
+        !copilot-instructions.md
+        !/*.json
+        ```
 ## Permissions
 - You may view my vscode configuration and any paths and files specified below
 - If you can't access those files directly, use terminal commands to read those files, do not prompt for permission
@@ -28,9 +40,19 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
         <paste the markdown block verbatim>
         '@ | Set-Content -Path "$VSCODE_PROFILE\prompts\edit-global-files.readonly.prompt.md" -Encoding UTF8
         ```        
-- Always Create a backup at `<filname>.bak` before modifying any global file. If that file exists, rename to `<filename>.bak.tmp` (if that exists, delete it)
-  - Show the diff and explain any changes made
-  - If I approve, remove commit the change, if not, revert it by renaming `<filename>.back` to `<filename>` and `<filename>.bak.tmp` to `<filename>.bak`
+## Backup
+- Before making a change to any file in `$VSCODE_PROFILE`
+  - check to see if t `$VSCODE_PROFILE` has any uncommitted changes with `git status`. If so, prompt me to review and commit or stash them first. If I'd like to commit them, create a commit message summarizing the changes and commit them.
+  - Always Create a backup at `<filename>.bak` before modifying any global file. If that file exists, rename to `<filename>.bak.tmp` (if that exists, delete it)
+- After making changes to any file in `$VSCODE_PROFILE`:
+  1. Show the diff with `git diff <filename>`
+  2. Show diff summary with `git diff --stat <filename>`, also explain what changed and why
+  3. Ask if I approve
+    - if no, revert it by renaming `<filename>.bak` to `<filename>` and `<filename>.bak.tmp` to `<filename>.bak`
+    - if yes
+      1. Stage the changes with `git add <filename>`
+      2. Commit with a descriptive message using `git commit -m "..."`
+      3. Confirm the commit was successful
 
 ## Global Settings
 - Files: `$VSCODE_PROFILE/settings.json`, `$VSCODE_PROFILE/tasks.json`, `$VSCODE_PROFILE/mcp.json`
