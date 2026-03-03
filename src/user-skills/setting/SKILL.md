@@ -1,6 +1,6 @@
 ---
 name: setting
-description: 'Edit VS Code or Cursor setting/config files with scope-aware targeting. Use for "global settings" or "my settings" including settings.json, tasks.json, mcp.json, and keybindings, with backup, diff review, and approval flow.'
+description: 'Edit VS Code or Cursor setting/config files with scope-aware targeting. Use for "global settings", "my settings", "vscode settings", or "user settings", including settings.json, tasks.json, mcp.json, and keybindings.'
 argument-hint: 'scope=[workspace|global](default:global) type=[setting|task|mcp|keybinding](default:setting) key=<setting-key>'
 ---
 

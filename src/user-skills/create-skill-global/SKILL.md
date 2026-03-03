@@ -1,6 +1,6 @@
 ---
 name: create-skill-global
-description: 'Create or update skills for workspace, profile, or global scope. Use for "global skills" or "your skills" under ~/.agents/skills, with review workflow and profile-level defaults.'
+description: 'Create or update skills for workspace, profile, or global scope.  Use to add or edit "global skills", "reusable skills", "profile skills" or "user skills".'
 argument-hint: 'scope=[workspace|profile|global](default:profile) name=<skill-name>'
 ---
 
