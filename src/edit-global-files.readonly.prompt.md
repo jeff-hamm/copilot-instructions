@@ -4,10 +4,15 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
 
 ## Paths
 - I will refer to my vscode profile path as `$VSCODE_PROFILE`. To find the location
-  1. Find the base VSCode settings path for my OS:
-    - powershell: `$Env:AppData\\Code\\User\\`
-    - cmd.exe `%APPDATA%/Code/User/`
-    - Linux `$HOME/.config/Code/User/`
+  1. Find the base VSCode settings path for my OS and channel:
+    - powershell (Stable): `$Env:AppData\\Code\\User\\`
+    - powershell (Insiders): `$Env:AppData\\Code - Insiders\\User\\`
+    - cmd.exe (Stable): `%APPDATA%/Code/User/`
+    - cmd.exe (Insiders): `%APPDATA%/Code - Insiders/User/`
+    - macOS (Stable): `~/Library/Application Support/Code/User/`
+    - macOS (Insiders): `~/Library/Application Support/Code - Insiders/User/`
+    - Linux (Stable): `$HOME/.config/Code/User/`
+    - Linux (Insiders): `$HOME/.config/Code - Insiders/User/`
   2. Try to determine my current profile path by checking
     - setting.json for a key indicating the current profile
     - profiles.json for the current profile
@@ -31,18 +36,18 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
 - *NEVER* Edit or remove a file with a `.readonly.*.md` file extension. You may read them though.
 - You may edit files in  `$VSCODE_PROFILE` without the `.readonly.*.md` extension per each section below.  
   - If you can't edit those files directly, use terminal commands to read those files, do not prompt for permission
-    - If a file must be written from the terminal
-      - Linux/macOS: wrap the block in `cat <<'EOF' > …` so the shell copies it exactly 
-      - Powershell: use a literal PowerShell here-string and Set-Content -Encoding UTF8 to avoid quoting problems.
-      - Example:
-        ```powershell
+    - If a file must be written from the terminal
+      - Linux/macOS: wrap the block in `cat <<'EOF' > …` so the shell copies it exactly 
+      - Powershell: use a literal PowerShell here-string and Set-Content -Encoding UTF8 to avoid quoting problems.
+      - Example:
+        ```powershell
         @'
         <paste the markdown block verbatim>
         '@ | Set-Content -Path "$VSCODE_PROFILE\prompts\edit-global-files.readonly.prompt.md" -Encoding UTF8
         ```        
 ## Backup
 - Before making a change to any file in `$VSCODE_PROFILE`
-  - check to see if t `$VSCODE_PROFILE` has any uncommitted changes with `git status`. If so, prompt me to review and commit or stash them first. If I'd like to commit them, create a commit message summarizing the changes and commit them.
+  - check to see if `$VSCODE_PROFILE` has any uncommitted changes with `git status`. If so, prompt me to review and commit or stash them first. If I'd like to commit them, create a commit message summarizing the changes and commit them.
   - Always Create a backup at `<filename>.bak` before modifying any global file. If that file exists, rename to `<filename>.bak.tmp` (if that exists, delete it)
 - After making changes to any file in `$VSCODE_PROFILE`:
   1. Show the diff with `git diff <filename>`

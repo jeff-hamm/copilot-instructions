@@ -5,6 +5,9 @@
 !prompts/
 !prompts/**
 !copilot-instructions.md
+!README.md
+!.agents/
+!.agents/**
 !src/
 !src/**
 *.bak

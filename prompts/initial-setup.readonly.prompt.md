@@ -7,10 +7,15 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
 
 ## Paths
 - I will refer to my vscode profile path as `$VSCODE_PROFILE`. To find the location
-  1. Find the base VSCode settings path for my OS:
-    - powershell: `$Env:AppData\\Code\\User\\`
-    - cmd.exe `%APPDATA%/Code/User/`
-    - Linux `$HOME/.config/Code/User/`
+  1. Find the base VSCode settings path for my OS and channel:
+    - powershell (Stable): `$Env:AppData\\Code\\User\\`
+    - powershell (Insiders): `$Env:AppData\\Code - Insiders\\User\\`
+    - cmd.exe (Stable): `%APPDATA%/Code/User/`
+    - cmd.exe (Insiders): `%APPDATA%/Code - Insiders/User/`
+    - macOS (Stable): `~/Library/Application Support/Code/User/`
+    - macOS (Insiders): `~/Library/Application Support/Code - Insiders/User/`
+    - Linux (Stable): `$HOME/.config/Code/User/`
+    - Linux (Insiders): `$HOME/.config/Code - Insiders/User/`
   2. Try to determine my current profile path by checking
     - setting.json for a key indicating the current profile
     - profiles.json for the current profile
@@ -45,7 +50,7 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
         ```        
 ## Backup
 - Before making a change to any file in `$VSCODE_PROFILE`
-  - check to see if t `$VSCODE_PROFILE` has any uncommitted changes with `git status`. If so, prompt me to review and commit or stash them first. If I'd like to commit them, create a commit message summarizing the changes and commit them.
+  - check to see if `$VSCODE_PROFILE` has any uncommitted changes with `git status`. If so, prompt me to review and commit or stash them first. If I'd like to commit them, create a commit message summarizing the changes and commit them.
   - Always Create a backup at `<filename>.bak` before modifying any global file. If that file exists, rename to `<filename>.bak.tmp` (if that exists, delete it)
 - After making changes to any file in `$VSCODE_PROFILE`:
   1. Show the diff with `git diff <filename>`
@@ -101,23 +106,26 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
   - If it doesn't already exist, append `$VSCODE_PROFILE/instructions` to the global setting `github.copilot.chat.codeGeneration.instructions` and `chat.instructionsFilesLocations` lists
   - If it doesn't already exist, append `$VSCODE_PROFILE/prompts` to the global setting `chat.promptFilesLocations` list
 
-
 ## Recreate prompts and instructions
-Create or update these files under `$VSCODE_PROFILE`, for each section title is the filename. Use the section's markdown as the file contents (copy verbatim)
+Create or update these files under $VSCODE_PROFILE, for each section title is the filename. Use the section's markdown as the file contents (copy verbatim)
 
 ### prompts/edit-global-files.readonly.prompt.md
-``````markdown
-````prompt
+``markdown
 # *IMPORTANT: NEVER EDIT THIS FILE!*
 # Global File Management
 Use this prompt whenever you view, edit or remove my global settings, instructions, or prompts.
 
 ## Paths
 - I will refer to my vscode profile path as `$VSCODE_PROFILE`. To find the location
-  1. Find the base VSCode settings path for my OS:
-    - powershell: `$Env:AppData\\Code\\User\\`
-    - cmd.exe `%APPDATA%/Code/User/`
-    - Linux `$HOME/.config/Code/User/`
+  1. Find the base VSCode settings path for my OS and channel:
+    - powershell (Stable): `$Env:AppData\\Code\\User\\`
+    - powershell (Insiders): `$Env:AppData\\Code - Insiders\\User\\`
+    - cmd.exe (Stable): `%APPDATA%/Code/User/`
+    - cmd.exe (Insiders): `%APPDATA%/Code - Insiders/User/`
+    - macOS (Stable): `~/Library/Application Support/Code/User/`
+    - macOS (Insiders): `~/Library/Application Support/Code - Insiders/User/`
+    - Linux (Stable): `$HOME/.config/Code/User/`
+    - Linux (Insiders): `$HOME/.config/Code - Insiders/User/`
   2. Try to determine my current profile path by checking
     - setting.json for a key indicating the current profile
     - profiles.json for the current profile
@@ -152,7 +160,7 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
         ```        
 ## Backup
 - Before making a change to any file in `$VSCODE_PROFILE`
-  - check to see if t `$VSCODE_PROFILE` has any uncommitted changes with `git status`. If so, prompt me to review and commit or stash them first. If I'd like to commit them, create a commit message summarizing the changes and commit them.
+  - check to see if `$VSCODE_PROFILE` has any uncommitted changes with `git status`. If so, prompt me to review and commit or stash them first. If I'd like to commit them, create a commit message summarizing the changes and commit them.
   - Always Create a backup at `<filename>.bak` before modifying any global file. If that file exists, rename to `<filename>.bak.tmp` (if that exists, delete it)
 - After making changes to any file in `$VSCODE_PROFILE`:
   1. Show the diff with `git diff <filename>`
@@ -186,18 +194,52 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
 - When adding a prompt, check to see if another prompt has similar functionality and can be edited before adding a new one
 ---
 # *IMPORTANT: NEVER EDIT THIS FILE!*
-
-````
-``````
+``
 
 ### instructions/global.readonly.instructions.md
-``````markdown
-```instructions
+``markdown
 ---
 applyTo: "**"
 ---
-# Global Prompts
-- Run `initial-setup.readonly.prompt.md` to recreate prompts if any are missing
-- Run `edit-global-files.readonly.prompt.md` to view, add or edit any global settings, instructions or prompts
-```
-``````
+# NEVER EDIT THIS FILE
+
+## Your Editable Directories
+You can read, create, and edit files in these `$VSCODE_PROFILE` locations:
+
+| Location | Contents | File Pattern |
+|----------|----------|--------------|
+| `/settings.json` | VS Code & Copilot settings | - |
+| `/instructions/` | Rules applied to all chats | `*.instructions.md` |
+| `/prompts/` | Reusable prompts | `*.prompt.md` |
+| `/prompts/` | Custom agents | `*.agent.md` |
+
+**Exception:** Never edit `*.readonly.*.md` files.
+
+## Terminology
+- "global settings", "my settings" → `settings.json`, `tasks.json`, `mcp.json`
+- "global rules", "your instructions" → files in `/instructions/`
+- "global prompts", "reusable prompts" → files in `/prompts/`
+
+## Workspace Customization Path Preference
+- For workspace-level customizations, prefer `.agents/` over `.copilot/` or `.github/`.
+- Prefer `.agents/skills/<name>/` for workspace skills.
+
+## Finding $VSCODE_PROFILE
+- Windows (Stable): `$Env:AppData\Code\User\`
+- Windows (Insiders): `$Env:AppData\Code - Insiders\User\`
+- macOS (Stable): `$HOME/Library/Application Support/Code/User/`
+- macOS (Insiders): `$HOME/Library/Application Support/Code - Insiders/User/`
+- Linux (Stable): `$HOME/.config/Code/User/`
+- Linux (Insiders): `$HOME/.config/Code - Insiders/User/`
+
+## What To Do
+1. **Explore** `/prompts/` for existing prompts and agents
+2. **Check** settings.json for existing values before adding
+3. **Use** `edit-global-files.readonly.prompt.md` for detailed editing guidance
+4. **Run** `initial-setup.readonly.prompt.md` if core files are missing
+
+---
+
+⚠️ **STOP: Before editing ANY file listed above, you MUST first read `$VSCODE_PROFILE/prompts/edit-global-files.readonly.prompt.md` for required permissions, backup procedures, and editing rules.**
+``
+

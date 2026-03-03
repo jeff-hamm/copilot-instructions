@@ -20,10 +20,17 @@ You can read, create, and edit files in these `$VSCODE_PROFILE` locations:
 - "global rules", "your instructions" → files in `/instructions/`
 - "global prompts", "reusable prompts" → files in `/prompts/`
 
+## Workspace Customization Path Preference
+- For workspace-level customizations, prefer `.agents/` over `.copilot/` or `.github/`.
+- Prefer `.agents/skills/<name>/` for workspace skills.
+
 ## Finding $VSCODE_PROFILE
-- Windows: `$Env:AppData\Code\User\`
-- macOS: `$HOME/Library/Application Support/Code/User/`
-- Linux: `$HOME/.config/Code/User/`
+- Windows (Stable): `$Env:AppData\Code\User\`
+- Windows (Insiders): `$Env:AppData\Code - Insiders\User\`
+- macOS (Stable): `$HOME/Library/Application Support/Code/User/`
+- macOS (Insiders): `$HOME/Library/Application Support/Code - Insiders/User/`
+- Linux (Stable): `$HOME/.config/Code/User/`
+- Linux (Insiders): `$HOME/.config/Code - Insiders/User/`
 
 ## What To Do
 1. **Explore** `/prompts/` for existing prompts and agents

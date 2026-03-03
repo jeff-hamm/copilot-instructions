@@ -18,25 +18,20 @@ Use #file:src/edit-global-files.readonly.prompt.md to determine the `$VSCODE_PRO
      # Initial Copilot Setup
      Use this prompt when reusable prompts or global instructions are missing, or when preparing a fresh environment.
      ```
-   2. Append the contents of `edit-global-files.readonly.prompt.md`, only include content _after_ the 
-      ```
-      ---
-      applyTo: "**"
-      --
-      block
-   3. Append the contents of `environment-setup.readonly.prompt.md`
+   2. Append the full contents of `src/edit-global-files.readonly.prompt.md`
+   3. Append the full contents of `src/environment-setup.readonly.prompt.md`
    4. Append the content
       ```markdown
       
       ## Recreate prompts and instructions
       Create or update these files under `$VSCODE_PROFILE`, for each section title is the filename. Use the section's markdown as the file contents (copy verbatim)
       ```
-   5. Under `### prompts/edit-global-files.readonly.prompt.md`, embed a second copy of `edit-global-files.readonly.prompt.md` in a fenced `markdown` block whose contents are copied directly from `edit-global-files.readonly.prompt.md`.
-   - Under `### instructions/global-file.readonly.instructions.md`, embed a fenced `markdown` block copied directly from `global-file.readonly.instructions.md`.
+   5. Under `### prompts/edit-global-files.readonly.prompt.md`, embed a second copy of `src/edit-global-files.readonly.prompt.md` in a fenced `markdown` block whose contents are copied directly from that source file.
+   6. Under `### instructions/global.readonly.instructions.md`, embed a fenced `markdown` block copied directly from `src/global.readonly.instructions.md`.
 3. Create backup before modifying:
    - If `$VSCODE_PROFILE/prompts/initial-setup.readonly.prompt.md.bak` exists, rename to `.bak.tmp` (delete `.bak.tmp` if it exists)
    - Save the current HEAD version to `.bak`
-4. Save the regenerated file and confirm each embedded block and the start of the file matches its source byte-for-byte.
+4. Save the regenerated file and confirm each embedded block and the start of the file matches its source byte-for-byte (including Stable and Insiders path entries).
 
 ## Verification and Commit
 
