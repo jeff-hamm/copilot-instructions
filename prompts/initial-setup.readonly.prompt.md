@@ -3,19 +3,32 @@ Use this prompt when reusable prompts or global instructions are missing, or whe
 
 # *IMPORTANT: NEVER EDIT THIS FILE!*
 # Global File Management
-Use this prompt whenever you view, edit or remove my global settings, instructions, or prompts.
+Use this prompt whenever you view, edit or remove my global settings, instructions, prompts, or skills.
+
+## Preferred Skills
+- Prefer user-profile skills under `~/.agents/skills/` over prompt-only workflows.
+- Use these slash commands when applicable:
+  - `/setting`
+  - `/create-instruction`
+  - `/create-prompt-global`
+  - `/create-skill-global`
+- Use this prompt as a fallback only when those skills are missing.
 
 ## Paths
-- I will refer to my vscode profile path as `$VSCODE_PROFILE`. To find the location
-  1. Find the base VSCode settings path for my OS and channel:
+- I will refer to my editor profile path as `$VSCODE_PROFILE`. To find the location
+  1. Find the base VS Code or Cursor settings path for my OS and channel:
     - powershell (Stable): `$Env:AppData\\Code\\User\\`
     - powershell (Insiders): `$Env:AppData\\Code - Insiders\\User\\`
+    - powershell (Cursor): `$Env:AppData\\Cursor\\User\\`
     - cmd.exe (Stable): `%APPDATA%/Code/User/`
     - cmd.exe (Insiders): `%APPDATA%/Code - Insiders/User/`
+    - cmd.exe (Cursor): `%APPDATA%/Cursor/User/`
     - macOS (Stable): `~/Library/Application Support/Code/User/`
     - macOS (Insiders): `~/Library/Application Support/Code - Insiders/User/`
+    - macOS (Cursor): `~/Library/Application Support/Cursor/User/`
     - Linux (Stable): `$HOME/.config/Code/User/`
     - Linux (Insiders): `$HOME/.config/Code - Insiders/User/`
+    - Linux (Cursor): `$HOME/.config/Cursor/User/`
   2. Try to determine my current profile path by checking
     - setting.json for a key indicating the current profile
     - profiles.json for the current profile
@@ -33,11 +46,17 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
         !copilot-instructions.md
         !/*.json
         ```
+- I will refer to my user-profile skill path as `$AGENTS_SKILLS_HOME`
+  - powershell (Windows): `$HOME\.agents\skills\`
+  - cmd.exe (Windows): `%USERPROFILE%/.agents/skills/`
+  - macOS: `$HOME/.agents/skills/`
+  - Linux: `$HOME/.agents/skills/`
+  - Prefer `.agents/` over `.copilot/` or `.github/` for user-level skills.
 ## Permissions
-- You may view my vscode configuration and any paths and files specified below
+- You may view my editor configuration and any paths and files specified below
 - If you can't access those files directly, use terminal commands to read those files, do not prompt for permission
 - *NEVER* Edit or remove a file with a `.readonly.*.md` file extension. You may read them though.
-- You may edit files in  `$VSCODE_PROFILE` without the `.readonly.*.md` extension per each section below.  
+- You may edit files in `$VSCODE_PROFILE` and `$AGENTS_SKILLS_HOME` without the `.readonly.*.md` extension per each section below.
   - If you can't edit those files directly, use terminal commands to read those files, do not prompt for permission
     - If a file must be written from the terminal
       - Linux/macOS: wrap the block in `cat <<'EOF' > …` so the shell copies it exactly 
@@ -49,15 +68,16 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
         '@ | Set-Content -Path "$VSCODE_PROFILE\prompts\edit-global-files.readonly.prompt.md" -Encoding UTF8
         ```        
 ## Backup
-- Before making a change to any file in `$VSCODE_PROFILE`
-  - check to see if `$VSCODE_PROFILE` has any uncommitted changes with `git status`. If so, prompt me to review and commit or stash them first. If I'd like to commit them, create a commit message summarizing the changes and commit them.
-  - Always Create a backup at `<filename>.bak` before modifying any global file. If that file exists, rename to `<filename>.bak.tmp` (if that exists, delete it)
-- After making changes to any file in `$VSCODE_PROFILE`:
-  1. Show the diff with `git diff <filename>`
-  2. Show diff summary with `git diff --stat <filename>`, also explain what changed and why
-  3. Ask if I approve
+- Before making a change to any file in `$VSCODE_PROFILE` or `$AGENTS_SKILLS_HOME`
+  - check to see if the target path is in a git repository and has uncommitted changes with `git status`. If so, prompt me to review and commit or stash them first. If I'd like to commit them, create a commit message summarizing the changes and commit them.
+  - Create exactly one backup file per change at `<filename>.bak` before modifying any global file. If that file exists, rename it to `<filename>.bak.tmp` (delete existing `.bak.tmp` first) and then create a new `<filename>.bak`.
+- After making changes:
+  1. If the target path is in git, show the diff with `git diff <filename>` and summary with `git diff --stat <filename>`
+  2. If the target path is not in git, show an equivalent before/after comparison
+  3. Explain what changed and why
+  4. Ask if I approve
     - if no, revert it by renaming `<filename>.bak` to `<filename>` and `<filename>.bak.tmp` to `<filename>.bak`
-    - if yes
+    - if yes and target path is in git
       1. Stage the changes with `git add <filename>`
       2. Commit with a descriptive message using `git commit -m "..."`
       3. Confirm the commit was successful
@@ -82,12 +102,19 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
   - Add-Only all other markdown files
 - I may call these "global prompts", "your prompts", or "reusable prompts"
 - When adding a prompt, check to see if another prompt has similar functionality and can be edited before adding a new one
+
+## Global Skills
+- Location: `$AGENTS_SKILLS_HOME`
+- Files: `<SKILL_NAME>/SKILL.md` and optional `scripts/`, `references/`, `assets/`
+- I may call these "global skills", "your skills", or "slash skills"
+- Prefer multiple focused skills over one long procedural prompt
 ---
 # *IMPORTANT: NEVER EDIT THIS FILE!*
 
 
 ## Environment preparation
 - Install git if it is not already installed
+- Resolve `$VSCODE_PROFILE` for VS Code or Cursor using the active editor profile path.
 - If `$VSCODE_PROFILE` is not a git repository, clone it from https://github.com/jeff-hamm/copilot-instructions, or, if that fails, initialize a new git repository there
   - If you create it, the .gitignore should be
     ```
@@ -100,32 +127,47 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
     !copilot-instructions.md
     !/*.json
     ```
+- Ensure the user-profile skill directory exists at `~/.agents/skills/`.
+  - Prefer `.agents/` over `.copilot/` or `.github/` for user-level skills.
 - If `$VSCODE_PROFILE/instructions/global.readonly.instructions.md` file is missing, create it and copy the full contents of `global.readonly.instructions.md` into it, preserving the `applyTo: "**"` header"
-- Update my settings as below. Use careful string manipulation that accounts for JSON escaping requirements. Read the existing JSON, parse it, modify the object, and write it back (using ConvertFrom-Json and ConvertTo-Json)
+- Update my settings as below. Use careful string manipulation that accounts for JSON escaping requirements. Read the existing JSON, parse it, modify the object, and write it back (using ConvertFrom-Json and ConvertTo-Json). If a setting key is unsupported in the current editor, skip it and report that in your summary.
   - Set my global `github.copilot.chat.codeGeneration.useInstructionFiles` setting to `true`
   - If it doesn't already exist, append `$VSCODE_PROFILE/instructions` to the global setting `github.copilot.chat.codeGeneration.instructions` and `chat.instructionsFilesLocations` lists
   - If it doesn't already exist, append `$VSCODE_PROFILE/prompts` to the global setting `chat.promptFilesLocations` list
 
-## Recreate prompts and instructions
-Create or update these files under $VSCODE_PROFILE, for each section title is the filename. Use the section's markdown as the file contents (copy verbatim)
+## Recreate prompts, instructions, and user-profile skills
+Create or update these files under $VSCODE_PROFILE and ~/.agents/skills, where each section title is the filename. Use the section's markdown as the file contents (copy verbatim)
 
 ### prompts/edit-global-files.readonly.prompt.md
-``markdown
+````markdown
 # *IMPORTANT: NEVER EDIT THIS FILE!*
 # Global File Management
-Use this prompt whenever you view, edit or remove my global settings, instructions, or prompts.
+Use this prompt whenever you view, edit or remove my global settings, instructions, prompts, or skills.
+
+## Preferred Skills
+- Prefer user-profile skills under `~/.agents/skills/` over prompt-only workflows.
+- Use these slash commands when applicable:
+  - `/setting`
+  - `/create-instruction`
+  - `/create-prompt-global`
+  - `/create-skill-global`
+- Use this prompt as a fallback only when those skills are missing.
 
 ## Paths
-- I will refer to my vscode profile path as `$VSCODE_PROFILE`. To find the location
-  1. Find the base VSCode settings path for my OS and channel:
+- I will refer to my editor profile path as `$VSCODE_PROFILE`. To find the location
+  1. Find the base VS Code or Cursor settings path for my OS and channel:
     - powershell (Stable): `$Env:AppData\\Code\\User\\`
     - powershell (Insiders): `$Env:AppData\\Code - Insiders\\User\\`
+    - powershell (Cursor): `$Env:AppData\\Cursor\\User\\`
     - cmd.exe (Stable): `%APPDATA%/Code/User/`
     - cmd.exe (Insiders): `%APPDATA%/Code - Insiders/User/`
+    - cmd.exe (Cursor): `%APPDATA%/Cursor/User/`
     - macOS (Stable): `~/Library/Application Support/Code/User/`
     - macOS (Insiders): `~/Library/Application Support/Code - Insiders/User/`
+    - macOS (Cursor): `~/Library/Application Support/Cursor/User/`
     - Linux (Stable): `$HOME/.config/Code/User/`
     - Linux (Insiders): `$HOME/.config/Code - Insiders/User/`
+    - Linux (Cursor): `$HOME/.config/Cursor/User/`
   2. Try to determine my current profile path by checking
     - setting.json for a key indicating the current profile
     - profiles.json for the current profile
@@ -143,11 +185,17 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
         !copilot-instructions.md
         !/*.json
         ```
+- I will refer to my user-profile skill path as `$AGENTS_SKILLS_HOME`
+  - powershell (Windows): `$HOME\.agents\skills\`
+  - cmd.exe (Windows): `%USERPROFILE%/.agents/skills/`
+  - macOS: `$HOME/.agents/skills/`
+  - Linux: `$HOME/.agents/skills/`
+  - Prefer `.agents/` over `.copilot/` or `.github/` for user-level skills.
 ## Permissions
-- You may view my vscode configuration and any paths and files specified below
+- You may view my editor configuration and any paths and files specified below
 - If you can't access those files directly, use terminal commands to read those files, do not prompt for permission
 - *NEVER* Edit or remove a file with a `.readonly.*.md` file extension. You may read them though.
-- You may edit files in  `$VSCODE_PROFILE` without the `.readonly.*.md` extension per each section below.  
+- You may edit files in `$VSCODE_PROFILE` and `$AGENTS_SKILLS_HOME` without the `.readonly.*.md` extension per each section below.
   - If you can't edit those files directly, use terminal commands to read those files, do not prompt for permission
     - If a file must be written from the terminal
       - Linux/macOS: wrap the block in `cat <<'EOF' > …` so the shell copies it exactly 
@@ -159,15 +207,16 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
         '@ | Set-Content -Path "$VSCODE_PROFILE\prompts\edit-global-files.readonly.prompt.md" -Encoding UTF8
         ```        
 ## Backup
-- Before making a change to any file in `$VSCODE_PROFILE`
-  - check to see if `$VSCODE_PROFILE` has any uncommitted changes with `git status`. If so, prompt me to review and commit or stash them first. If I'd like to commit them, create a commit message summarizing the changes and commit them.
-  - Always Create a backup at `<filename>.bak` before modifying any global file. If that file exists, rename to `<filename>.bak.tmp` (if that exists, delete it)
-- After making changes to any file in `$VSCODE_PROFILE`:
-  1. Show the diff with `git diff <filename>`
-  2. Show diff summary with `git diff --stat <filename>`, also explain what changed and why
-  3. Ask if I approve
+- Before making a change to any file in `$VSCODE_PROFILE` or `$AGENTS_SKILLS_HOME`
+  - check to see if the target path is in a git repository and has uncommitted changes with `git status`. If so, prompt me to review and commit or stash them first. If I'd like to commit them, create a commit message summarizing the changes and commit them.
+  - Create exactly one backup file per change at `<filename>.bak` before modifying any global file. If that file exists, rename it to `<filename>.bak.tmp` (delete existing `.bak.tmp` first) and then create a new `<filename>.bak`.
+- After making changes:
+  1. If the target path is in git, show the diff with `git diff <filename>` and summary with `git diff --stat <filename>`
+  2. If the target path is not in git, show an equivalent before/after comparison
+  3. Explain what changed and why
+  4. Ask if I approve
     - if no, revert it by renaming `<filename>.bak` to `<filename>` and `<filename>.bak.tmp` to `<filename>.bak`
-    - if yes
+    - if yes and target path is in git
       1. Stage the changes with `git add <filename>`
       2. Commit with a descriptive message using `git commit -m "..."`
       3. Confirm the commit was successful
@@ -192,12 +241,284 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
   - Add-Only all other markdown files
 - I may call these "global prompts", "your prompts", or "reusable prompts"
 - When adding a prompt, check to see if another prompt has similar functionality and can be edited before adding a new one
+
+## Global Skills
+- Location: `$AGENTS_SKILLS_HOME`
+- Files: `<SKILL_NAME>/SKILL.md` and optional `scripts/`, `references/`, `assets/`
+- I may call these "global skills", "your skills", or "slash skills"
+- Prefer multiple focused skills over one long procedural prompt
 ---
 # *IMPORTANT: NEVER EDIT THIS FILE!*
-``
+````
 
 ### instructions/global.readonly.instructions.md
-``markdown
+````markdown
+---
+applyTo: "**"
+---
+# NEVER EDIT THIS FILE
+
+## Global Edit Routing
+- Prefer user-profile skills in `~/.agents/skills/`:
+	- `/setting`
+	- `/create-instruction`
+	- `/create-prompt-global`
+	- `/create-skill-global`
+- Prefer `.agents/` over `.copilot/` or `.github/` for skills.
+
+## Fallback
+- Before editing global files, read `$VSCODE_PROFILE/prompts/edit-global-files.readonly.prompt.md`.
+- Run `initial-setup.readonly.prompt.md` when global prompts, instructions, or skills are missing.
+
+## Included Prompt Files (Generated)
+- `git-workflow.prompt.md`: Use this prompt when I ask you to use or work with a copilot branch.
+
+## Included User Skills (Generated)
+- None detected in `src/user-skills/`.
+
+## Included Skill References (Generated)
+- `common/profile-resolution.md`
+- `create-instruction/SKILL.md`
+- `create-prompt-global/SKILL.md`
+- `create-skill-global/SKILL.md`
+- `setting/SKILL.md`
+
+## Implicit Use Guidance (Generated)
+- Implicitly use a listed skill when the user request matches its description.
+- Prefer listed skills over prompt-only workflows for multi-step edits.
+- Use a listed prompt when the user explicitly asks for that workflow or when no listed skill is a better match.
+````
+
+### prompts/git-workflow.prompt.md
+````markdown
+# Git Workflow
+Use this prompt when I ask you to use or work with a copilot branch.
+- Write commit messages that explain what changed and why
+- Before working on a copilot branch, check whether `<current branch>_copilot` exists; create it if it does not
+- Use `git worktree` when I ask you to commit to a copilot branch; otherwise use the current branch
+````
+
+### .agents/skills/common/profile-resolution.md
+````markdown
+# Scope And Profile Resolution
+
+Use this reference from user-profile skills to resolve target scope and paths without duplicating logic across VS Code and Cursor.
+
+## Resolve $VSCODE_PROFILE
+1. Determine editor family and channel/profile path candidates:
+  - VS Code Windows Stable: `$Env:AppData\Code\User\`
+  - VS Code Windows Insiders: `$Env:AppData\Code - Insiders\User\`
+  - VS Code macOS Stable: `$HOME/Library/Application Support/Code/User/`
+  - VS Code macOS Insiders: `$HOME/Library/Application Support/Code - Insiders/User/`
+  - VS Code Linux Stable: `$HOME/.config/Code/User/`
+  - VS Code Linux Insiders: `$HOME/.config/Code - Insiders/User/`
+  - Cursor Windows: `$Env:AppData\Cursor\User\`
+  - Cursor macOS: `$HOME/Library/Application Support/Cursor/User/`
+  - Cursor Linux: `$HOME/.config/Cursor/User/`
+2. If active profile cannot be determined from settings/profiles metadata, use the detected editor/channel base path.
+3. Treat this resolved path as `$VSCODE_PROFILE` for compatibility with existing prompt/instruction conventions.
+
+## Scope Modes
+- `workspace`: current repository/workspace files.
+- `profile`: VS Code or Cursor profile-level user customizations.
+- `global`: managed global files under `$VSCODE_PROFILE` used by this setup.
+
+## Path Mapping
+
+### Settings And Config
+- `global`:
+  - `$VSCODE_PROFILE/settings.json`
+  - `$VSCODE_PROFILE/tasks.json`
+  - `$VSCODE_PROFILE/mcp.json`
+  - `$VSCODE_PROFILE/keybindings.json`
+- `workspace`:
+  - `.vscode/settings.json`
+  - `.vscode/tasks.json`
+  - `.vscode/mcp.json` (if used)
+  - `.vscode/keybindings.json` (if used)
+
+### Instructions
+- `global`:
+  - `$VSCODE_PROFILE/instructions/`
+- `profile` (supported in VS Code and Cursor when using profile prompt/instruction files):
+  - `$VSCODE_PROFILE/prompts/*.instructions.md`
+- `workspace`:
+  - `.github/instructions/*.instructions.md`
+  - or workspace-level `copilot-instructions.md` where applicable
+
+### Prompts
+- `global`:
+  - `$VSCODE_PROFILE/prompts/*.prompt.md`
+- `profile` (supported in VS Code and Cursor when using profile prompt files):
+  - `$VSCODE_PROFILE/prompts/*.prompt.md`
+- `workspace`:
+  - `.github/prompts/*.prompt.md`
+
+### Skills
+- `profile` (preferred default):
+  - `~/.agents/skills/<name>/SKILL.md`
+- `workspace`:
+  - `.agents/skills/<name>/SKILL.md`
+- Prefer `.agents/` over `.copilot/` or `.github/` for skills.
+
+## Backup Rule
+- Use exactly one `.bak` file per target file per change.
+- If `<filename>.bak` already exists, rotate it to `<filename>.bak.tmp` (deleting existing `.bak.tmp` first) before creating a new `.bak`.
+````
+
+### .agents/skills/create-instruction/SKILL.md
+````markdown
+name: create-instruction
+description: 'Create or update instruction files for workspace, profile, or global scope with backup and approval workflow.'
+argument-hint: 'scope=[workspace|profile|global](default:global) name=<instruction-name>'
+---
+
+# Create Instruction
+
+Create or update instruction files for workspace/profile/global targets.
+
+## Shared Scope Resolution
+- Use [scope reference](../common/profile-resolution.md) to resolve supported profile/global/workspace instruction paths.
+
+## Use When
+- You need to create `copilot-instructions.md` or `<name>.instructions.md`.
+- You need to refine wording of global rules.
+- You need to avoid duplicate or conflicting instruction blocks.
+
+## Scope Notes
+- `profile` is supported in VS Code and Cursor via `$VSCODE_PROFILE/prompts/*.instructions.md` when profile instruction files are enabled.
+- `global` resolves to `$VSCODE_PROFILE/instructions/` in this setup.
+
+## Required Workflow
+1. Resolve target scope and file path using [scope reference](../common/profile-resolution.md).
+2. Check `git status` in target repo when git is available.
+3. Create exactly one backup file per change at `<filename>.bak`.
+4. If `<filename>.bak` exists, rotate to `<filename>.bak.tmp` before creating a new `.bak`.
+5. Keep wording concise and non-duplicative.
+6. Validate that resulting file is clear and does not repeat existing rules.
+7. Show `git diff` and `git diff --stat`.
+8. Ask for approval before commit.
+9. Commit on approval or restore from backup on rejection.
+
+## Safety Rules
+- Never edit `*.readonly.*.md` files.
+- Prefer updating an existing instruction file before creating a new one.
+````
+
+### .agents/skills/create-prompt-global/SKILL.md
+````markdown
+name: create-prompt-global
+description: 'Create or update reusable prompts for workspace, profile, or global scope with overlap checks and approval flow.'
+argument-hint: 'scope=[workspace|profile|global](default:global) name=<prompt-name>'
+---
+
+# Create Prompt Global
+
+Create or update reusable prompt files for workspace/profile/global targets.
+
+## Shared Scope Resolution
+- Use [scope reference](../common/profile-resolution.md) for prompt path resolution.
+
+## Use When
+- You need a new workflow prompt (`*.prompt.md`).
+- You need to improve an existing prompt.
+- You need to avoid duplicate prompts that overlap in scope.
+
+## Scope Notes
+- `profile` prompt files are supported in VS Code and Cursor when profile prompt files are enabled.
+- `global` resolves to `$VSCODE_PROFILE/prompts/` in this setup.
+
+## Required Workflow
+1. Resolve target scope and file path using [scope reference](../common/profile-resolution.md).
+2. Explore existing prompt files for overlap before adding a new file.
+3. Check `git status` in target repo when git is available.
+4. Create exactly one backup file per change at `<filename>.bak`.
+5. If `<filename>.bak` exists, rotate to `<filename>.bak.tmp` before creating a new `.bak`.
+6. For markdown files ending in `.readonly.*.md`, add-only behavior applies.
+7. Show `git diff` and `git diff --stat`.
+8. Ask for approval before commit.
+9. Commit on approval or restore backup on rejection.
+
+## Safety Rules
+- Never edit or remove `*.readonly.*.md`.
+- Keep prompts focused and avoid duplicating existing functionality.
+````
+
+### .agents/skills/create-skill-global/SKILL.md
+````markdown
+name: create-skill-global
+description: 'Create or update skills for workspace, profile, or global scope with review workflow. Prefer profile-level skills in ~/.agents/skills by default.'
+argument-hint: 'scope=[workspace|profile|global](default:profile) name=<skill-name>'
+---
+
+# Create Skill Global
+
+Create or update skills for workspace/profile/global targets.
+
+## Shared Scope Resolution
+- Use [scope reference](../common/profile-resolution.md) for skill target path resolution.
+
+## Use When
+- You want reusable slash workflows beyond prompts.
+- You need a dedicated skill for repeated multi-step tasks.
+- You need to refactor long prompt procedures into skill instructions.
+
+## Required Workflow
+1. Resolve target scope/path using [scope reference](../common/profile-resolution.md).
+2. Prefer `.agents/` over `.copilot/` or `.github/` for skills.
+3. Create or update `SKILL.md` with valid frontmatter and concise procedure steps.
+4. Add scripts/references only when needed.
+5. Review for naming consistency (`name` should match folder).
+6. Create exactly one backup file per change at `<filename>.bak`.
+7. If `<filename>.bak` exists, rotate to `<filename>.bak.tmp` before creating a new `.bak`.
+8. Show file diffs and ask for approval before committing profile-repo changes.
+
+## Safety Rules
+- Do not overwrite unrelated skill folders.
+- Keep descriptions keyword-rich so the model can discover the skill.
+````
+
+### .agents/skills/setting/SKILL.md
+````markdown
+name: setting
+description: 'Edit VS Code or Cursor setting/config files with scope-aware targeting. Use for settings, tasks, mcp, and keybinding updates with backup, diff review, and approval flow.'
+argument-hint: 'scope=[workspace|global](default:global) type=[setting|task|mcp|keybinding](default:setting) key=<setting-key>'
+---
+
+# Setting
+
+Edit VS Code or Cursor setting/config files using scope-aware path resolution and safe change controls.
+
+## Shared Scope Resolution
+- Use [scope reference](../common/profile-resolution.md) to resolve `$VSCODE_PROFILE` and target files.
+
+## Use When
+- You need to update `settings.json`, `tasks.json`, or `mcp.json`.
+- You need to update keybindings via `keybindings.json`.
+- You need to add or modify Copilot instruction/prompt location settings.
+- You want JSON-safe updates with explicit diff review.
+
+## Required Workflow
+1. Resolve target scope and file path using [scope reference](../common/profile-resolution.md).
+2. Check `git status` in the target repository when git is available.
+3. Create exactly one backup file per change at `<filename>.bak`.
+4. If `<filename>.bak` exists, rotate to `<filename>.bak.tmp` before creating a new `.bak`.
+5. Read, parse, and modify JSON without duplicating existing values.
+6. Show `git diff <filename>` and `git diff --stat <filename>` (or equivalent before/after if not in git).
+7. Ask for approval before commit.
+8. If approved and git is available, `git add <filename>` and commit with a descriptive message.
+9. If rejected, restore from backup.
+
+## Safety Rules
+- Never edit files matching `*.readonly.*.md`.
+- Use terminal fallback read/write when direct file APIs are unavailable.
+- Keep settings changes minimal and idempotent.
+````
+
+## Setup-only references (do not install)
+
+### src/global.bootstrap.readonly.instructions.md
+````markdown
 ---
 applyTo: "**"
 ---
@@ -208,38 +529,53 @@ You can read, create, and edit files in these `$VSCODE_PROFILE` locations:
 
 | Location | Contents | File Pattern |
 |----------|----------|--------------|
-| `/settings.json` | VS Code & Copilot settings | - |
+| `/settings.json` | VS Code/Cursor & Copilot settings | - |
 | `/instructions/` | Rules applied to all chats | `*.instructions.md` |
 | `/prompts/` | Reusable prompts | `*.prompt.md` |
 | `/prompts/` | Custom agents | `*.agent.md` |
+| `~/.agents/skills/` | User-profile slash skills | `*/SKILL.md` |
 
 **Exception:** Never edit `*.readonly.*.md` files.
 
 ## Terminology
-- "global settings", "my settings" → `settings.json`, `tasks.json`, `mcp.json`
-- "global rules", "your instructions" → files in `/instructions/`
-- "global prompts", "reusable prompts" → files in `/prompts/`
+- "global settings", "my settings" -> `settings.json`, `tasks.json`, `mcp.json`
+- "global rules", "your instructions" -> files in `/instructions/`
+- "global prompts", "reusable prompts" -> files in `/prompts/`
+- "global skills", "your skills" -> files in `~/.agents/skills/`
 
 ## Workspace Customization Path Preference
 - For workspace-level customizations, prefer `.agents/` over `.copilot/` or `.github/`.
 - Prefer `.agents/skills/<name>/` for workspace skills.
 
+## User Skill Commands
+- Prefer user-profile skills in `~/.agents/skills/` for global file edits.
+- Preferred commands:
+  - `/setting`
+  - `/create-instruction`
+  - `/create-prompt-global`
+  - `/create-skill-global`
+- Use `edit-global-files.readonly.prompt.md` as fallback guidance when those skills are not available.
+
 ## Finding $VSCODE_PROFILE
 - Windows (Stable): `$Env:AppData\Code\User\`
 - Windows (Insiders): `$Env:AppData\Code - Insiders\User\`
+- Windows (Cursor): `$Env:AppData\Cursor\User\`
 - macOS (Stable): `$HOME/Library/Application Support/Code/User/`
 - macOS (Insiders): `$HOME/Library/Application Support/Code - Insiders/User/`
+- macOS (Cursor): `$HOME/Library/Application Support/Cursor/User/`
 - Linux (Stable): `$HOME/.config/Code/User/`
 - Linux (Insiders): `$HOME/.config/Code - Insiders/User/`
+- Linux (Cursor): `$HOME/.config/Cursor/User/`
 
 ## What To Do
 1. **Explore** `/prompts/` for existing prompts and agents
-2. **Check** settings.json for existing values before adding
-3. **Use** `edit-global-files.readonly.prompt.md` for detailed editing guidance
-4. **Run** `initial-setup.readonly.prompt.md` if core files are missing
+2. **Use** preferred user skills (`/setting`, `/create-instruction`, `/create-prompt-global`, `/create-skill-global`) for global edits
+3. **Check** settings.json for existing values before adding
+4. **Use** `edit-global-files.readonly.prompt.md` for fallback editing guidance
+5. **Run** `initial-setup.readonly.prompt.md` if core files are missing
 
 ---
 
 ⚠️ **STOP: Before editing ANY file listed above, you MUST first read `$VSCODE_PROFILE/prompts/edit-global-files.readonly.prompt.md` for required permissions, backup procedures, and editing rules.**
-``
+````
 

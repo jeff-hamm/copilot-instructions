@@ -5,61 +5,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-function Read-Source {
-  param([string]$Path)
-
-  if (-not (Test-Path -LiteralPath $Path)) {
-    throw "Missing source file: $Path"
-  }
-
-  $raw = Get-Content -LiteralPath $Path -Raw
-  return $raw.TrimEnd("`r", "`n")
-}
-
-function Normalize {
-  param([string]$Text)
-
-  return ($Text -replace "`r`n", "`n").TrimEnd("`n")
-}
-
-function Build-Expected {
-  param([string]$Root)
-
-  $edit = Read-Source -Path (Join-Path $Root "src/edit-global-files.readonly.prompt.md")
-  $envPrep = Read-Source -Path (Join-Path $Root "src/environment-setup.readonly.prompt.md")
-  $global = Read-Source -Path (Join-Path $Root "src/global.readonly.instructions.md")
-
-  $header = @(
-    "# Initial Copilot Setup",
-    "Use this prompt when reusable prompts or global instructions are missing, or when preparing a fresh environment."
-  ) -join "`n"
-
-  $recreate = @(
-    "## Recreate prompts and instructions",
-    "Create or update these files under `$VSCODE_PROFILE`, for each section title is the filename. Use the section's markdown as the file contents (copy verbatim)"
-  ) -join "`n"
-
-  return (@(
-    $header
-    ""
-    $edit
-    ""
-    $envPrep
-    ""
-    $recreate
-    ""
-    "### prompts/edit-global-files.readonly.prompt.md"
-    "````markdown"
-    $edit
-    "````"
-    ""
-    "### instructions/global.readonly.instructions.md"
-    "````markdown"
-    $global
-    "````"
-    ""
-  ) -join "`n")
-}
+$builderPath = Join-Path $PSScriptRoot "..\..\regenerate-initial-setup\scripts\initial-setup-builder.ps1"
+. $builderPath
 
 $compiledPath = Join-Path $WorkspaceRoot $CompiledRelativePath
 if (-not (Test-Path -LiteralPath $compiledPath)) {
@@ -67,8 +14,9 @@ if (-not (Test-Path -LiteralPath $compiledPath)) {
   exit 2
 }
 
-$expected = Normalize -Text (Build-Expected -Root $WorkspaceRoot)
-$actual = Normalize -Text (Get-Content -LiteralPath $compiledPath -Raw)
+$expectedModel = Build-InitialSetupContent -WorkspaceRoot $WorkspaceRoot
+$expected = Normalize-Content -Text $expectedModel.Content
+$actual = Normalize-Content -Text (Get-Content -LiteralPath $compiledPath -Raw)
 
 if ($actual -eq $expected) {
   Write-Host "No drift detected."
