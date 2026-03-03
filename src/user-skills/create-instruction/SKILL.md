@@ -1,5 +1,6 @@
+---
 name: create-instruction
-description: 'Create or update instruction files for workspace, profile, or global scope with backup and approval workflow.'
+description: 'Create or update instruction files for workspace, profile, or global scope. Use for "global rules" or "your instructions" in /instructions/, with backup and approval workflow.'
 argument-hint: 'scope=[workspace|profile|global](default:global) name=<instruction-name>'
 ---
 

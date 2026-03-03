@@ -1,6 +1,6 @@
 ---
 name: regenerate-initial-setup
-description: 'Regenerate prompts/initial-setup.readonly.prompt.md from src source files using dynamic discovery of src/prompts and src/user-skills. Generates a temporary global.readonly.instructions.md (outside git) that lists included skills/prompts and implicit-use guidance.'
+description: 'Regenerate prompts/initial-setup.readonly.prompt.md from src source files using dynamic discovery of src/prompts and src/user-skills. Generates a temporary global.readonly.instructions.md (outside git) that includes routing plus discovered prompts and skills with descriptions.'
 argument-hint: 'Optional: output relative path; default is prompts/initial-setup.readonly.prompt.md'
 ---
 

@@ -151,7 +151,35 @@ function Build-DynamicGlobalInstructions {
   )
 
   $base = Read-Source -Path (Join-Path $WorkspaceRoot "src/global.readonly.instructions.md")
-  $lines = @($base, "")
+  $baseLines = @($base -split "`n")
+
+  $routerStart = [Array]::IndexOf($baseLines, "## Global Edit Routing")
+  if ($routerStart -lt 0) {
+    throw "Missing '## Global Edit Routing' section in src/global.readonly.instructions.md"
+  }
+
+  $nextSection = -1
+  for ($i = $routerStart + 1; $i -lt $baseLines.Count; $i++) {
+    if ($baseLines[$i] -like "## *") {
+      $nextSection = $i
+      break
+    }
+  }
+
+  $prefix = @()
+  if ($routerStart -gt 0) {
+    $prefix = @($baseLines[0..($routerStart - 1)])
+  }
+
+  $routerSection = if ($nextSection -gt 0) {
+    @($baseLines[$routerStart..($nextSection - 1)])
+  }
+  else {
+    @($baseLines[$routerStart..($baseLines.Count - 1)])
+  }
+
+  $routerOnlyBase = ((@($prefix + $routerSection) -join "`n").TrimEnd("`n"))
+  $lines = @($routerOnlyBase, "")
 
   $lines += "## Included Prompt Files (Generated)"
   if ($PromptSources.Count -eq 0) {
@@ -174,24 +202,6 @@ function Build-DynamicGlobalInstructions {
       $lines += ('- `/{0}`: {1}' -f $skill.SkillName, $skill.Summary)
     }
   }
-
-  $lines += ""
-  $lines += "## Included Skill References (Generated)"
-  $referenceItems = @($SkillSources | Where-Object { -not $_.IsSkill })
-  if ($referenceItems.Count -eq 0) {
-    $lines += "- None."
-  }
-  else {
-    foreach ($reference in $referenceItems) {
-      $lines += ('- `{0}`' -f $reference.RelativePath)
-    }
-  }
-
-  $lines += ""
-  $lines += "## Implicit Use Guidance (Generated)"
-  $lines += "- Implicitly use a listed skill when the user request matches its description."
-  $lines += "- Prefer listed skills over prompt-only workflows for multi-step edits."
-  $lines += "- Use a listed prompt when the user explicitly asks for that workflow or when no listed skill is a better match."
 
   return ($lines -join "`n")
 }

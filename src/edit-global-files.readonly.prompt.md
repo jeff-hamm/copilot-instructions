@@ -4,16 +4,17 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
 
 ## Preferred Skills
 - Prefer user-profile skills under `~/.agents/skills/` over prompt-only workflows.
-- Use these slash commands when applicable:
-  - `/setting`
-  - `/create-instruction`
-  - `/create-prompt-global`
-  - `/create-skill-global`
+- Route requests to these slash commands when applicable:
+  - `/setting` for "global settings" or "my settings" (`settings.json`, `tasks.json`, `mcp.json`, `keybindings.json`)
+  - `/create-instruction` for "global rules" or "your instructions"
+  - `/create-prompt-global` for "global prompts" or "reusable prompts"
+  - `/create-skill-global` for "global skills", "your skills", or "slash skills"
 - Use this prompt as a fallback only when those skills are missing.
 
 ## Paths
 - I will refer to my editor profile path as `$VSCODE_PROFILE`. To find the location
-  1. Find the base VS Code or Cursor settings path for my OS and channel:
+  1. Resolve `$VSCODE_PROFILE` for VS Code or Cursor using the active editor profile path.
+  2. If the active profile path cannot be determined from settings/profiles metadata, use editor and channel fallback candidates:
     - powershell (Stable): `$Env:AppData\\Code\\User\\`
     - powershell (Insiders): `$Env:AppData\\Code - Insiders\\User\\`
     - powershell (Cursor): `$Env:AppData\\Cursor\\User\\`
@@ -26,11 +27,7 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
     - Linux (Stable): `$HOME/.config/Code/User/`
     - Linux (Insiders): `$HOME/.config/Code - Insiders/User/`
     - Linux (Cursor): `$HOME/.config/Cursor/User/`
-  2. Try to determine my current profile path by checking
-    - setting.json for a key indicating the current profile
-    - profiles.json for the current profile
-  3. If you cannot determine the profile path, use the VSCode base settings path
-  4. Once you have that path, make sure it is a git repository.
+  3. Once you have that path, make sure it is a git repository.
     - If `$VSCODE_PROFILE` is not a git repository, clone it from https://github.com/jeff-hamm/copilot-instructions, or, if that fails, initialize a new git repository there
       - If you create it, the .gitignore should be
         ```
@@ -80,13 +77,15 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
       3. Confirm the commit was successful
 
 ## Global Settings
-- Files: `$VSCODE_PROFILE/settings.json`, `$VSCODE_PROFILE/tasks.json`, `$VSCODE_PROFILE/mcp.json`
+- Files: `$VSCODE_PROFILE/settings.json`, `$VSCODE_PROFILE/tasks.json`, `$VSCODE_PROFILE/mcp.json`, `$VSCODE_PROFILE/keybindings.json`
 - I may call these "my settings", "global settings", or "global files"
 - Check for an existing setting before adding new values; edit or append as needed
 - Validate the file to prevent duplicates before finishing
 
 ## Global Instructions
-- Location: `$VSCODE_PROFILE/instructions`
+- Locations:
+  - global: `$VSCODE_PROFILE/instructions`
+  - profile: `$VSCODE_PROFILE/prompts/*.instructions.md` (when profile instruction files are enabled)
 - Files: `copilot-instructions.md` (all filetypes) or `<NAME>.instructions.md` (file-specific)
 - I may call these "global rules", "your instructions", or "your rules"
 - Keep wording short and precise. They can significantly reduce my performance if they are too long
@@ -95,15 +94,17 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
 ## Global Prompts
 - Location: `$VSCODE_PROFILE/prompts`
 - Files
-  - Add/Edit all markdown files that do NOT end in `.readonly.*.md`
-  - Add-Only all other markdown files
+  - Preferred prompt files: `*.prompt.md`
+  - Add/Edit markdown files that do NOT end in `.readonly.*.md`
+  - Add-Only files ending in `.readonly.*.md`
 - I may call these "global prompts", "your prompts", or "reusable prompts"
 - When adding a prompt, check to see if another prompt has similar functionality and can be edited before adding a new one
 
 ## Global Skills
-- Location: `$AGENTS_SKILLS_HOME`
+- Location (profile default): `$AGENTS_SKILLS_HOME`
 - Files: `<SKILL_NAME>/SKILL.md` and optional `scripts/`, `references/`, `assets/`
 - I may call these "global skills", "your skills", or "slash skills"
+- Ensure `SKILL.md` uses valid frontmatter (`---`, `name`, `description`, optional `argument-hint`, `---`)
 - Prefer multiple focused skills over one long procedural prompt
 ---
 # *IMPORTANT: NEVER EDIT THIS FILE!*

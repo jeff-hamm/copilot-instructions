@@ -3,7 +3,8 @@
 Use this reference from user-profile skills to resolve target scope and paths without duplicating logic across VS Code and Cursor.
 
 ## Resolve $VSCODE_PROFILE
-1. Determine editor family and channel/profile path candidates:
+1. Resolve `$VSCODE_PROFILE` for VS Code or Cursor using the active editor profile path.
+2. If the active profile path cannot be determined from settings/profiles metadata, use editor and channel fallback candidates:
   - VS Code Windows Stable: `$Env:AppData\Code\User\`
   - VS Code Windows Insiders: `$Env:AppData\Code - Insiders\User\`
   - VS Code macOS Stable: `$HOME/Library/Application Support/Code/User/`
@@ -13,7 +14,6 @@ Use this reference from user-profile skills to resolve target scope and paths wi
   - Cursor Windows: `$Env:AppData\Cursor\User\`
   - Cursor macOS: `$HOME/Library/Application Support/Cursor/User/`
   - Cursor Linux: `$HOME/.config/Cursor/User/`
-2. If active profile cannot be determined from settings/profiles metadata, use the detected editor/channel base path.
 3. Treat this resolved path as `$VSCODE_PROFILE` for compatibility with existing prompt/instruction conventions.
 
 ## Scope Modes
@@ -36,18 +36,14 @@ Use this reference from user-profile skills to resolve target scope and paths wi
   - `.vscode/keybindings.json` (if used)
 
 ### Instructions
-- `global`:
+- `global`, `profile` or `user`:
   - `$VSCODE_PROFILE/instructions/`
-- `profile` (supported in VS Code and Cursor when using profile prompt/instruction files):
-  - `$VSCODE_PROFILE/prompts/*.instructions.md`
 - `workspace`:
   - `.github/instructions/*.instructions.md`
   - or workspace-level `copilot-instructions.md` where applicable
 
 ### Prompts
-- `global`:
-  - `$VSCODE_PROFILE/prompts/*.prompt.md`
-- `profile` (supported in VS Code and Cursor when using profile prompt files):
+- `global`, `profile` or `user`:
   - `$VSCODE_PROFILE/prompts/*.prompt.md`
 - `workspace`:
   - `.github/prompts/*.prompt.md`

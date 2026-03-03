@@ -1,5 +1,6 @@
+---
 name: create-prompt-global
-description: 'Create or update reusable prompts for workspace, profile, or global scope with overlap checks and approval flow.'
+description: 'Create or update reusable prompts for workspace, profile, or global scope. Use for "global prompts" or "reusable prompts" in /prompts/, with overlap checks and approval flow.'
 argument-hint: 'scope=[workspace|profile|global](default:global) name=<prompt-name>'
 ---
 

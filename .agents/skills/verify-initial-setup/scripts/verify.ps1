@@ -26,9 +26,9 @@ if ($actual -ne $expected) {
 $requiredMarkers = @(
   "### prompts/edit-global-files.readonly.prompt.md",
   "### instructions/global.readonly.instructions.md",
+  "## Global Edit Routing",
   "## Included Prompt Files (Generated)",
   "## Included User Skills (Generated)",
-  "## Implicit Use Guidance (Generated)",
   "## Setup-only references (do not install)",
   "### src/global.bootstrap.readonly.instructions.md",
   "Code - Insiders",

@@ -31,9 +31,8 @@ Use #file:src/edit-global-files.readonly.prompt.md to determine the `$VSCODE_PRO
       ```
    5. Perform a file search in `src/prompts` for `*.prompt.md` and in `src/user-skills` for `*.md` to determine included prompts and skills/references.
    6. Generate a temporary `global.readonly.instructions.md` file outside the repository (not checked into git) that:
-      - starts from `src/global.readonly.instructions.md`
-      - lists discovered prompts and skills
-      - provides guidance on when to use each implicitly
+      - includes the `## Global Edit Routing` section from `src/global.readonly.instructions.md`
+      - lists discovered prompts and discovered skills with descriptions
    7. Under `### prompts/edit-global-files.readonly.prompt.md`, embed a second copy of `src/edit-global-files.readonly.prompt.md` in a fenced `markdown` block whose contents are copied directly from that source file.
    8. Under `### instructions/global.readonly.instructions.md`, embed a fenced `markdown` block copied from the temporary generated `global.readonly.instructions.md` (this is the installed always-on file).
    9. For each discovered prompt source file, add `### prompts/<filename>` and embed the file in a fenced `markdown` block.
