@@ -1,7 +1,7 @@
 ---
 name: verify-initial-setup
 description: 'Verify initial setup changes before commit: check drift, confirm required dynamic section markers (prompts/skills/generated global instructions), ensure Insiders/Cursor paths exist, and print git status and diff stats.'
-argument-hint: 'Optional: compiled prompt relative path; default is prompts/initial-setup.readonly.prompt.md'
+argument-hint: 'Optional: compiled prompt relative path; default is dist/initial-setup.readonly.prompt.md'
 ---
 
 # Verify Initial Setup

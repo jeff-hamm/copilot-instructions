@@ -1,8 +1,8 @@
 # Update Initial Setup Prompt
 
-Use this prompt to rebuild the  `$VSCODE_PROFILE/prompts/initial-setup.readonly.prompt.md` prompt whenever it drifts from the canonical source prompts.
+Use this prompt to rebuild `dist/initial-setup.readonly.prompt.md` whenever it drifts from the canonical source prompts.
 
-Use #file:src/edit-global-files.readonly.prompt.md to determine the `$VSCODE_PROFILE` path. You *ARE* allowed to edit or remove `$VSCODE_PROFILE/prompts/initial-setup.readonly.prompt.md` 
+You *ARE* allowed to edit or remove `dist/initial-setup.readonly.prompt.md` and `dist/new-install.readonly.prompt.md`.
 
 ## Source files
 - `src/environment-setup.readonly.prompt.md`
@@ -38,10 +38,11 @@ Use #file:src/edit-global-files.readonly.prompt.md to determine the `$VSCODE_PRO
    9. For each discovered prompt source file, add `### prompts/<filename>` and embed the file in a fenced `markdown` block.
    10. For each discovered user-skill markdown file, map its relative path from `src/user-skills/` to `.agents/skills/<relative-path>`, then add `### .agents/skills/<relative-path>` and embed it in a fenced `markdown` block.
    11. Under `## Setup-only references (do not install)`, add `### src/global.bootstrap.readonly.instructions.md` and embed a fenced `markdown` block copied directly from `src/global.bootstrap.readonly.instructions.md`.
+   12. Write `dist/new-install.readonly.prompt.md` as a minimal prompt that instructs the agent to download raw `dist/initial-setup.readonly.prompt.md` from remote `origin` and run it as a prompt.
 3. Create backup before modifying:
    - Use exactly one `.bak` file for this change.
-   - If `$VSCODE_PROFILE/prompts/initial-setup.readonly.prompt.md.bak` exists, rename to `.bak.tmp` (delete `.bak.tmp` if it exists), then save current HEAD version to `.bak`
-4. Save the regenerated file and confirm each embedded block and the start of the file matches its source byte-for-byte (including VS Code Stable/Insiders, Cursor paths, dynamic prompt/skill sections, and generated global instructions).
+   - If `dist/initial-setup.readonly.prompt.md.bak` exists, rename to `.bak.tmp` (delete `.bak.tmp` if it exists), then save current HEAD version to `.bak`
+4. Save the regenerated files and confirm each embedded block and the start of the file matches its source byte-for-byte (including VS Code Stable/Insiders, Cursor paths, dynamic prompt/skill sections, and generated global instructions).
 
 ## Verification and Commit
 
@@ -54,4 +55,4 @@ Use #file:src/edit-global-files.readonly.prompt.md to determine the `$VSCODE_PRO
 - If verification fails, diagnose the problem and include the solution for what the differences were in your summary.
 
 # Installation
-- Run `$VSCODE_PROFILE/prompts/initial-setup.readonly.prompt.md` as a prompt
+- Run `dist/initial-setup.readonly.prompt.md` as a prompt

@@ -2,8 +2,8 @@
 !.gitignore
 !instructions/
 !instructions/**
-!prompts/
-!prompts/**
+!dist/
+!dist/**
 !copilot-instructions.md
 !README.md
 !.agents/

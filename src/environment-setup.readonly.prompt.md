@@ -27,6 +27,7 @@
       - `~/.agents/skills/create-instruction/SKILL.md`
       - `~/.agents/skills/create-prompt-global/SKILL.md`
       - `~/.agents/skills/create-skill-global/SKILL.md`
+      - `~/.agents/skills/update-jumper-prompts/SKILL.md`
 - If detected, run an in-place upgrade:
   - Keep existing git history and user-created files.
   - Replace only the files defined in this setup prompt with current contents.

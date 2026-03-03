@@ -9,6 +9,7 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
   - `/create-instruction` for "global rules" or "your instructions"
   - `/create-prompt-global` for "global prompts" or "reusable prompts"
   - `/create-skill-global` for "global skills", "your skills", or "slash skills"
+  - `/update-jumper-prompts` to update this module from `origin` by downloading `dist/initial-setup.readonly.prompt.md` from raw content and running it as a prompt
 - Use this prompt as a fallback only when those skills are missing.
 
 ## Paths

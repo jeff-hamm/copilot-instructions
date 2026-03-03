@@ -12,6 +12,7 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
   - `/create-instruction` for "global rules" or "your instructions"
   - `/create-prompt-global` for "global prompts" or "reusable prompts"
   - `/create-skill-global` for "global skills", "your skills", or "slash skills"
+  - `/update-jumper-prompts` to update this module from `origin` by downloading `dist/initial-setup.readonly.prompt.md` from raw content and running it as a prompt
 - Use this prompt as a fallback only when those skills are missing.
 
 ## Paths
@@ -141,6 +142,7 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
       - `~/.agents/skills/create-instruction/SKILL.md`
       - `~/.agents/skills/create-prompt-global/SKILL.md`
       - `~/.agents/skills/create-skill-global/SKILL.md`
+      - `~/.agents/skills/update-jumper-prompts/SKILL.md`
 - If detected, run an in-place upgrade:
   - Keep existing git history and user-created files.
   - Replace only the files defined in this setup prompt with current contents.
@@ -170,6 +172,7 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
   - `/create-instruction` for "global rules" or "your instructions"
   - `/create-prompt-global` for "global prompts" or "reusable prompts"
   - `/create-skill-global` for "global skills", "your skills", or "slash skills"
+  - `/update-jumper-prompts` to update this module from `origin` by downloading `dist/initial-setup.readonly.prompt.md` from raw content and running it as a prompt
 - Use this prompt as a fallback only when those skills are missing.
 
 ## Paths
@@ -284,6 +287,7 @@ applyTo: "**"
 	- `/create-instruction`
 	- `/create-prompt-global`
 	- `/create-skill-global`
+	- `/update-jumper-prompts`
 - Prefer `.agents/` over `.copilot/` or `.github/` for skills.
 
 ## Included Prompt Files (Generated)
@@ -294,6 +298,7 @@ applyTo: "**"
 - `/create-prompt-global`: Create or update reusable prompts for workspace, profile, or global scope. Use for "global prompts" or "reusable prompts" in /prompts/, with overlap checks and approval flow.
 - `/create-skill-global`: Create or update skills for workspace, profile, or global scope. Use for "global skills" or "your skills" under ~/.agents/skills, with review workflow and profile-level defaults.
 - `/setting`: Edit VS Code or Cursor setting/config files with scope-aware targeting. Use for "global settings" or "my settings" including settings.json, tasks.json, mcp.json, and keybindings, with backup, diff review, and approval flow.
+- `/update-jumper-prompts`: Download and run this repo\'s bootstrap prompt by fetching dist/initial-setup.readonly.prompt.md from raw GitHub, then running the downloaded prompt file.
 ````
 
 ### prompts/git-workflow.prompt.md
@@ -522,6 +527,43 @@ Edit VS Code or Cursor setting/config files using scope-aware path resolution an
 - Keep settings changes minimal and idempotent.
 ````
 
+### .agents/skills/update-jumper-prompts/SKILL.md
+````markdown
+---
+name: update-jumper-prompts
+description: 'Download and run this repo\'s bootstrap prompt by fetching dist/initial-setup.readonly.prompt.md from raw GitHub, then running the downloaded prompt file.'
+argument-hint: 'Optional: branch=<branch>(default:main)'
+---
+
+# Update Jumper Prompts
+
+Download and run this repo's bootstrap prompt from raw GitHub.
+
+## Shared Scope Resolution
+- No profile path resolution is required for this workflow.
+
+## Use When
+- You need a quick bootstrap/update entrypoint for this repo.
+- You want to fetch and run `dist/initial-setup.readonly.prompt.md` without relying on local profile setup.
+- You want a platform-agnostic update flow.
+
+## Required Workflow
+1. Build the raw URL using this repo path template:
+  - `https://raw.githubusercontent.com/jeff-hamm/copilot-instructions/<branch>/dist/initial-setup.readonly.prompt.md`
+  - Default `<branch>` is `main`.
+2. Choose a temp target path:
+  - `<TEMP_DIR>/copilot-instructions/initial-setup.readonly.prompt.md`
+3. Download the raw file to that temp path.
+4. Validate the downloaded file starts with `# Initial Copilot Setup`.
+5. Run the downloaded temp file as a prompt.
+6. Summarize the update and include the raw URL and temp path used.
+
+## Safety Rules
+- If download fails, surface the exact URL and error.
+- Do not modify files outside this update flow unless explicitly requested.
+- Keep the workflow platform-agnostic (no shell-specific temp environment syntax).
+````
+
 ## Setup-only references (do not install)
 
 ### src/global.bootstrap.readonly.instructions.md
@@ -561,6 +603,7 @@ You can read, create, and edit files in these `$VSCODE_PROFILE` locations:
   - `/create-instruction`
   - `/create-prompt-global`
   - `/create-skill-global`
+  - `/update-jumper-prompts`
 - Use `edit-global-files.readonly.prompt.md` as fallback guidance when those skills are not available.
 
 ## Finding $VSCODE_PROFILE
@@ -576,7 +619,7 @@ You can read, create, and edit files in these `$VSCODE_PROFILE` locations:
 
 ## What To Do
 1. **Explore** `/prompts/` for existing prompts and agents
-2. **Use** preferred user skills (`/setting`, `/create-instruction`, `/create-prompt-global`, `/create-skill-global`) for global edits
+2. **Use** preferred user skills (`/setting`, `/create-instruction`, `/create-prompt-global`, `/create-skill-global`, `/update-jumper-prompts`) for global edits
 3. **Check** settings.json for existing values before adding
 4. **Use** `edit-global-files.readonly.prompt.md` for fallback editing guidance
 5. **Run** `initial-setup.readonly.prompt.md` if core files are missing

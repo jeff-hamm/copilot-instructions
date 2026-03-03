@@ -221,6 +221,85 @@ function Write-TemporaryGlobalInstructions {
   return $tempPath
 }
 
+function Resolve-OriginRawUrl {
+  param(
+    [string]$WorkspaceRoot,
+    [string]$CanonicalRelativePath
+  )
+
+  $git = Get-Command git -ErrorAction SilentlyContinue
+  if ($null -eq $git) {
+    throw "git is required to generate dist/new-install.readonly.prompt.md"
+  }
+
+  $originUrl = (& git -C $WorkspaceRoot remote get-url origin 2>$null)
+  $originUrl = if ($null -eq $originUrl) { "" } else { $originUrl.Trim() }
+  if ([string]::IsNullOrWhiteSpace($originUrl)) {
+    throw "Unable to resolve git remote 'origin' for $WorkspaceRoot"
+  }
+
+  $originHeadRef = (& git -C $WorkspaceRoot symbolic-ref refs/remotes/origin/HEAD 2>$null)
+  $originHeadRef = if ($null -eq $originHeadRef) { "" } else { $originHeadRef.Trim() }
+
+  $branch = "main"
+  if ($originHeadRef -match "^refs/remotes/origin/(.+)$") {
+    $branch = $Matches[1]
+  }
+
+  $owner = $null
+  $repo = $null
+
+  if ($originUrl -match "^https://github\.com/(?<owner>[^/]+)/(?<repo>[^/]+?)(?:\.git)?/?$") {
+    $owner = $Matches['owner']
+    $repo = $Matches['repo']
+  }
+  elseif ($originUrl -match "^git@github\.com:(?<owner>[^/]+)/(?<repo>[^/]+?)(?:\.git)?$") {
+    $owner = $Matches['owner']
+    $repo = $Matches['repo']
+  }
+  elseif ($originUrl -match "^ssh://git@github\.com/(?<owner>[^/]+)/(?<repo>[^/]+?)(?:\.git)?/?$") {
+    $owner = $Matches['owner']
+    $repo = $Matches['repo']
+  }
+  else {
+    throw "Unsupported origin URL for raw GitHub generation: $originUrl"
+  }
+
+  $canonical = ($CanonicalRelativePath -replace "\\", "/")
+  $rawUrl = "https://raw.githubusercontent.com/$owner/$repo/$branch/$canonical"
+
+  return [PSCustomObject]@{
+    OriginUrl = $originUrl
+    Branch = $branch
+    RawUrl = $rawUrl
+    CanonicalRelativePath = $canonical
+  }
+}
+
+function Build-NewInstallPromptContent {
+  param(
+    [string]$WorkspaceRoot,
+    [string]$CanonicalRelativePath = "dist/initial-setup.readonly.prompt.md"
+  )
+
+  $origin = Resolve-OriginRawUrl -WorkspaceRoot $WorkspaceRoot -CanonicalRelativePath $CanonicalRelativePath
+  $tempPath = '<TEMP_DIR>/copilot-instructions/initial-setup.readonly.prompt.md'
+  $lines = @(
+    "# Install Initial Setup",
+    "Download and run the bootstrap prompt from this raw URL.",
+    "",
+    ('Raw URL: `{0}`' -f $origin.RawUrl),
+    ('Temp file: `{0}`' -f $tempPath),
+    "",
+    ('1. Create `{0}` if it does not exist.' -f '<TEMP_DIR>/copilot-instructions'),
+    ('2. Download `{0}` to `{1}`.' -f $origin.RawUrl, $tempPath),
+    '3. Confirm the downloaded file starts with `# Initial Copilot Setup`.',
+    ('4. Run `{0}` as a prompt.' -f $tempPath)
+  )
+
+  return ($lines -join "`n")
+}
+
 function Build-InitialSetupContent {
   param(
     [string]$WorkspaceRoot,

@@ -11,8 +11,9 @@ The main goal is to let a fresh install quickly recreate:
 
 Use this repo when you want a repeatable way to configure global Copilot behavior in your VS Code or Cursor profile (`$VSCODE_PROFILE`) and keep those files under git.
 
-The compiled installer prompt is:
-- `prompts/initial-setup.readonly.prompt.md`
+The compiled installer prompts are:
+- `dist/initial-setup.readonly.prompt.md`
+- `dist/new-install.readonly.prompt.md`
 
 It is built from canonical source files in `src/`.
 
@@ -27,8 +28,9 @@ It is built from canonical source files in `src/`.
 | `src/update-initial-setup.readonly.prompt.md` | Meta-prompt describing how to regenerate initial setup prompt | Yes |
 | `src/user-skills/common/profile-resolution.md` | Shared scope and path resolution reference for user skills | Yes |
 | `src/user-skills/*/SKILL.md` | Canonical source for user-profile global editing skills | Yes |
-| `prompts/initial-setup.readonly.prompt.md` | Compiled bootstrap prompt used on fresh installs | No (generated from `src/*`) |
-| `prompts/git-workflow.prompt.md` | Reusable prompt for copilot-branch/worktree workflow | Yes |
+| `dist/initial-setup.readonly.prompt.md` | Compiled bootstrap prompt used on fresh installs | No (generated from `src/*`) |
+| `dist/new-install.readonly.prompt.md` | Minimal new-install bootstrap prompt | No (generated) |
+| `src/prompts/git-workflow.prompt.md` | Reusable prompt source for copilot-branch/worktree workflow | Yes |
 | `instructions/copilot-instructions.md` | Lightweight global instruction include | Yes |
 | `.agents/skills/regenerate-initial-setup/` | Workspace skill to regenerate compiled initial setup prompt | Yes |
 | `.agents/skills/check-initial-setup-drift/` | Workspace skill to detect drift between source and compiled prompt | Yes |
@@ -48,7 +50,7 @@ This keeps conventions consistent for both workspace and user-level agent custom
 
 These skills are included under `.agents/skills`:
 
-- `regenerate-initial-setup`: rebuilds `prompts/initial-setup.readonly.prompt.md` from `src/*`
+- `regenerate-initial-setup`: rebuilds `dist/initial-setup.readonly.prompt.md` (and `dist/new-install.readonly.prompt.md`) from `src/*`
 - `check-initial-setup-drift`: compares expected compiled content vs current file
 - `verify-initial-setup`: runs drift checks, required marker checks, Insiders checks, and prints git status/diff stats
 
@@ -68,8 +70,9 @@ The `edit-global-files` concept is now split into multiple focused slash skills 
 - `/create-instruction`
 - `/create-prompt-global`
 - `/create-skill-global`
+- `/update-jumper-prompts`
 
-These are sourced from `src/user-skills/*/SKILL.md`, share path logic from `src/user-skills/common/profile-resolution.md`, and are embedded into `prompts/initial-setup.readonly.prompt.md` during regeneration.
+These are sourced from `src/user-skills/*/SKILL.md`, share path logic from `src/user-skills/common/profile-resolution.md`, and are embedded into `dist/initial-setup.readonly.prompt.md` during regeneration.
 
 Profile-level support in VS Code/Cursor:
 - Profile-level instruction files are supported via `$VSCODE_PROFILE/prompts/*.instructions.md`.
@@ -107,7 +110,8 @@ The compiled prompt is assembled in this order:
 9. Embedded copy of `src/user-skills/create-instruction/SKILL.md`
 10. Embedded copy of `src/user-skills/create-prompt-global/SKILL.md`
 11. Embedded copy of `src/user-skills/create-skill-global/SKILL.md`
-12. Setup-only reference block embedding `src/global.bootstrap.readonly.instructions.md`
+12. Embedded copy of `src/user-skills/update-jumper-prompts/SKILL.md`
+13. Setup-only reference block embedding `src/global.bootstrap.readonly.instructions.md`
 
 This duplication is intentional so the bootstrap prompt can recreate required files without external lookup.
 
@@ -115,7 +119,7 @@ This duplication is intentional so the bootstrap prompt can recreate required fi
 
 When the compiled prompt drifts:
 1. Update canonical files in `src/` first.
-2. Rebuild `prompts/initial-setup.readonly.prompt.md` using `src/update-initial-setup.readonly.prompt.md`.
+2. Rebuild `dist/initial-setup.readonly.prompt.md` using `src/update-initial-setup.readonly.prompt.md`.
 3. During rebuild, the skill scans `src/prompts` and `src/user-skills` and creates a temporary generated `global.readonly.instructions.md` outside git for embedding.
 4. Verify embedded blocks match source content byte-for-byte.
 5. Review with `git diff` and `git diff --stat`.
@@ -123,14 +127,14 @@ When the compiled prompt drifts:
 ## Fresh Install Workflow
 
 On a new machine/profile:
-1. Run the compiled prompt `prompts/initial-setup.readonly.prompt.md`.
+1. Run the compiled prompt `dist/initial-setup.readonly.prompt.md`.
 2. It prepares git/profile basics and required settings.
 3. It recreates the key read-only prompt/instruction files in `$VSCODE_PROFILE`.
 
 ## Upgrade Legacy Install Workflow
 
 For profiles that were initialized from commit `b9cc57aa67b6b25c5348fe7f807f229b544905c7`:
-1. Run the compiled prompt `prompts/initial-setup.readonly.prompt.md` again.
+1. Run the compiled prompt `dist/initial-setup.readonly.prompt.md` again.
 2. The environment setup detects legacy markers and performs an in-place upgrade.
 3. It updates the managed prompt/instruction files and installs the current user-profile skills under `~/.agents/skills/`.
 4. It preserves user-created prompts/instructions/settings not explicitly managed by this setup prompt.
@@ -144,7 +148,7 @@ What should stay as prompts/instructions:
 - Fallback guardrails (`edit-global-files.readonly.prompt.md`) for environments where skills are missing.
 
 What should be skills:
-- User-profile global edit workflows (`/setting`, `/create-instruction`, `/create-prompt-global`, `/create-skill-global`).
+- User-profile global edit workflows (`/setting`, `/create-instruction`, `/create-prompt-global`, `/create-skill-global`, `/update-jumper-prompts`).
 - Maintainer-only repo workflows (`regenerate-initial-setup`, `check-initial-setup-drift`, `verify-initial-setup`).
 
 Why not remove prompts/instructions entirely:

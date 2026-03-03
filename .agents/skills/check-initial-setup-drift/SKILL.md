@@ -1,7 +1,7 @@
 ---
 name: check-initial-setup-drift
-description: 'Detect drift between dynamic source discovery (src/prompts, src/user-skills, and generated global instructions) and prompts/initial-setup.readonly.prompt.md. Use before commit or when troubleshooting missing embedded blocks.'
-argument-hint: 'Optional: compiled prompt relative path; default is prompts/initial-setup.readonly.prompt.md'
+description: 'Detect drift between dynamic source discovery (src/prompts, src/user-skills, and generated global instructions) and dist/initial-setup.readonly.prompt.md. Use before commit or when troubleshooting missing embedded blocks.'
+argument-hint: 'Optional: compiled prompt relative path; default is dist/initial-setup.readonly.prompt.md'
 ---
 
 # Check Initial Setup Drift

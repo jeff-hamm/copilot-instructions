@@ -1,6 +1,6 @@
 param(
   [string]$WorkspaceRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..\..")).Path,
-  [string]$CompiledRelativePath = "prompts/initial-setup.readonly.prompt.md"
+  [string]$CompiledRelativePath = "dist/initial-setup.readonly.prompt.md"
 )
 
 $ErrorActionPreference = "Stop"

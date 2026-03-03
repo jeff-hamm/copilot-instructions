@@ -33,6 +33,7 @@ You can read, create, and edit files in these `$VSCODE_PROFILE` locations:
   - `/create-instruction`
   - `/create-prompt-global`
   - `/create-skill-global`
+  - `/update-jumper-prompts`
 - Use `edit-global-files.readonly.prompt.md` as fallback guidance when those skills are not available.
 
 ## Finding $VSCODE_PROFILE
@@ -48,7 +49,7 @@ You can read, create, and edit files in these `$VSCODE_PROFILE` locations:
 
 ## What To Do
 1. **Explore** `/prompts/` for existing prompts and agents
-2. **Use** preferred user skills (`/setting`, `/create-instruction`, `/create-prompt-global`, `/create-skill-global`) for global edits
+2. **Use** preferred user skills (`/setting`, `/create-instruction`, `/create-prompt-global`, `/create-skill-global`, `/update-jumper-prompts`) for global edits
 3. **Check** settings.json for existing values before adding
 4. **Use** `edit-global-files.readonly.prompt.md` for fallback editing guidance
 5. **Run** `initial-setup.readonly.prompt.md` if core files are missing

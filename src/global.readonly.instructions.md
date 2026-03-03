@@ -9,6 +9,7 @@ applyTo: "**"
 	- `/create-instruction`
 	- `/create-prompt-global`
 	- `/create-skill-global`
+	- `/update-jumper-prompts`
 - Prefer `.agents/` over `.copilot/` or `.github/` for skills.
 
 ## Fallback
