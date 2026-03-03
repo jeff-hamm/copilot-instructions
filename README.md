@@ -127,6 +127,14 @@ On a new machine/profile:
 2. It prepares git/profile basics and required settings.
 3. It recreates the key read-only prompt/instruction files in `$VSCODE_PROFILE`.
 
+## Upgrade Legacy Install Workflow
+
+For profiles that were initialized from commit `b9cc57aa67b6b25c5348fe7f807f229b544905c7`:
+1. Run the compiled prompt `prompts/initial-setup.readonly.prompt.md` again.
+2. The environment setup detects legacy markers and performs an in-place upgrade.
+3. It updates the managed prompt/instruction files and installs the current user-profile skills under `~/.agents/skills/`.
+4. It preserves user-created prompts/instructions/settings not explicitly managed by this setup prompt.
+
 ## Should This Be Converted To Skills?
 
 Short answer: yes, as a multi-skill model plus a fallback prompt.
