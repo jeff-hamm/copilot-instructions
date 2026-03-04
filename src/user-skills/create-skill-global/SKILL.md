@@ -1,6 +1,6 @@
 ---
 name: create-skill-global
-description: 'Create or update skills for workspace, profile, or global scope.  Use to add or edit "global skills", "reusable skills", "profile skills" or "user skills". You need a dedicated skill for repeated multi-step tasks. You create an integration or work out a specific API and want to be able to reuse it.'
+description: 'Create, edit, or refactor skills for workspace/profile/global scope. Use for requests like "global skills", "slash commands", "reusable workflows", "automation skill", "agent skill", "SKILL.md", "new skill", or "skill updates". Best for repeatable multi-step tasks and integrations.'
 argument-hint: 'scope=[workspace|profile|global](default:profile) name=<skill-name>'
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: create-instruction
-description: 'Create or update instruction files for workspace, profile, or global scope. Use to add or edit "global rules", "global instructions", "global instructions", "reusable instructions", "profile instructions" or "user instructions"'
+description: 'Create, edit, or refactor instruction files for workspace/profile/global scope. Use for requests like "global rules", "copilot instructions", "project instructions", "profile instructions", "user instructions", "coding standards", "guardrails", "policy", or "instruction file updates".'
 argument-hint: 'scope=[workspace|global](default:global) name=<instruction-name>'
 ---
 

@@ -318,11 +318,11 @@ applyTo: "**"
 - `git-workflow.prompt.md`: Use this prompt when I ask you to use or work with a copilot branch.
 
 ## Included User Skills (Generated)
-- `/create-instruction`: Create or update instruction files for workspace, profile, or global scope. Use to add or edit "global rules", "global instructions", "global instructions", "reusable instructions", "profile instructions" or "user instructions"
-- `/create-prompt-global`: Create or update reusable prompts for workspace, profile, or global scope. Use to add or edit "global prompts", "reusable prompts", "profile prompts" or "user prompts".
-- `/create-skill-global`: Create or update skills for workspace, profile, or global scope.  Use to add or edit "global skills", "reusable skills", "profile skills" or "user skills". You need a dedicated skill for repeated multi-step tasks. You create an integration or work out a specific API and want to be able to reuse it.
-- `/setting`: Edit VS Code or Cursor setting/config files with scope-aware targeting. Use for "global settings", "my settings", "vscode settings", or "user settings", including settings.json, tasks.json, mcp.json, and keybindings.
-- `/update-jumper-prompts`: Download and run this repo bootstrap prompt by fetching dist/initial-setup.readonly.prompt.md from raw GitHub, then running the downloaded prompt file.
+- `/create-instruction`: Create, edit, or refactor instruction files for workspace/profile/global scope. Use for requests like "global rules", "copilot instructions", "project instructions", "profile instructions", "user instructions", "coding standards", "guardrails", "policy", or "instruction file updates".
+- `/create-prompt-global`: Create, edit, organize, or deduplicate reusable prompt files for workspace/profile/global scope. Use for requests like "global prompts", "reusable prompts", "prompt library", "prompt template", "slash prompt", "workflow prompt", or "prompt file updates".
+- `/create-skill-global`: Create, edit, or refactor skills for workspace/profile/global scope. Use for requests like "global skills", "slash commands", "reusable workflows", "automation skill", "agent skill", "SKILL.md", "new skill", or "skill updates". Best for repeatable multi-step tasks and integrations.
+- `/setting`: Edit VS Code or Cursor configuration files with scope-aware targeting. Use for requests like "global settings", "my settings", "workspace settings", "vscode settings", "user settings", "settings.json", "tasks.json", "mcp.json", "keybindings", "Copilot settings", or "instruction/prompt locations".
+- `/update-jumper-prompts`: Bootstrap or refresh this prompt pack by downloading and running dist/initial-setup.readonly.prompt.md from GitHub. Use for requests like "update jumper prompts", "refresh global prompts", "reinstall bootstrap prompt", "pull latest initial setup", or "run new install".
 
 ## Fallback
 - Before editing global files, read `$VSCODE_PROFILE/prompts/edit-global-files.readonly.prompt.md`.
@@ -407,7 +407,7 @@ Use this reference from user-profile skills to resolve target scope and paths wi
 ````markdown
 ---
 name: create-instruction
-description: 'Create or update instruction files for workspace, profile, or global scope. Use to add or edit "global rules", "global instructions", "global instructions", "reusable instructions", "profile instructions" or "user instructions"'
+description: 'Create, edit, or refactor instruction files for workspace/profile/global scope. Use for requests like "global rules", "copilot instructions", "project instructions", "profile instructions", "user instructions", "coding standards", "guardrails", "policy", or "instruction file updates".'
 argument-hint: 'scope=[workspace|global](default:global) name=<instruction-name>'
 ---
 
@@ -453,7 +453,7 @@ Resolve `$VSCODE_PROFILE` by running the co-located resolver script for the curr
 ````markdown
 ---
 name: create-prompt-global
-description: 'Create or update reusable prompts for workspace, profile, or global scope. Use to add or edit "global prompts", "reusable prompts", "profile prompts" or "user prompts".'
+description: 'Create, edit, organize, or deduplicate reusable prompt files for workspace/profile/global scope. Use for requests like "global prompts", "reusable prompts", "prompt library", "prompt template", "slash prompt", "workflow prompt", or "prompt file updates".'
 argument-hint: 'scope=[workspace|global](default:global) name=<prompt-name>'
 ---
 
@@ -499,7 +499,7 @@ Resolve `$VSCODE_PROFILE` by running the co-located resolver script for the curr
 ````markdown
 ---
 name: create-skill-global
-description: 'Create or update skills for workspace, profile, or global scope.  Use to add or edit "global skills", "reusable skills", "profile skills" or "user skills". You need a dedicated skill for repeated multi-step tasks. You create an integration or work out a specific API and want to be able to reuse it.'
+description: 'Create, edit, or refactor skills for workspace/profile/global scope. Use for requests like "global skills", "slash commands", "reusable workflows", "automation skill", "agent skill", "SKILL.md", "new skill", or "skill updates". Best for repeatable multi-step tasks and integrations.'
 argument-hint: 'scope=[workspace|profile|global](default:profile) name=<skill-name>'
 ---
 
@@ -540,7 +540,7 @@ Resolve `$VSCODE_PROFILE` by running the co-located resolver script for the curr
 ````markdown
 ---
 name: setting
-description: 'Edit VS Code or Cursor setting/config files with scope-aware targeting. Use for "global settings", "my settings", "vscode settings", or "user settings", including settings.json, tasks.json, mcp.json, and keybindings.'
+description: 'Edit VS Code or Cursor configuration files with scope-aware targeting. Use for requests like "global settings", "my settings", "workspace settings", "vscode settings", "user settings", "settings.json", "tasks.json", "mcp.json", "keybindings", "Copilot settings", or "instruction/prompt locations".'
 argument-hint: 'scope=[workspace|global](default:global) type=[setting|task|mcp|keybinding](default:setting) key=<setting-key>'
 ---
 
@@ -578,7 +578,7 @@ Resolve `$VSCODE_PROFILE` by running the co-located resolver script for the curr
 ````markdown
 ---
 name: update-jumper-prompts
-description: 'Download and run this repo bootstrap prompt by fetching dist/initial-setup.readonly.prompt.md from raw GitHub, then running the downloaded prompt file.'
+description: 'Bootstrap or refresh this prompt pack by downloading and running dist/initial-setup.readonly.prompt.md from GitHub. Use for requests like "update jumper prompts", "refresh global prompts", "reinstall bootstrap prompt", "pull latest initial setup", or "run new install".'
 argument-hint: 'Optional: branch=<branch>(default:main)'
 ---
 

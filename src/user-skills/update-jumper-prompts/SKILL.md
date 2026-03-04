@@ -1,6 +1,6 @@
 ---
 name: update-jumper-prompts
-description: 'Download and run this repo bootstrap prompt by fetching dist/initial-setup.readonly.prompt.md from raw GitHub, then running the downloaded prompt file.'
+description: 'Bootstrap or refresh this prompt pack by downloading and running dist/initial-setup.readonly.prompt.md from GitHub. Use for requests like "update jumper prompts", "refresh global prompts", "reinstall bootstrap prompt", "pull latest initial setup", or "run new install".'
 argument-hint: 'Optional: branch=<branch>(default:main)'
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: create-prompt-global
-description: 'Create or update reusable prompts for workspace, profile, or global scope. Use to add or edit "global prompts", "reusable prompts", "profile prompts" or "user prompts".'
+description: 'Create, edit, organize, or deduplicate reusable prompt files for workspace/profile/global scope. Use for requests like "global prompts", "reusable prompts", "prompt library", "prompt template", "slash prompt", "workflow prompt", or "prompt file updates".'
 argument-hint: 'scope=[workspace|global](default:global) name=<prompt-name>'
 ---
 
