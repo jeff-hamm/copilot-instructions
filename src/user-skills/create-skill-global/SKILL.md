@@ -1,6 +1,6 @@
 ---
 name: create-skill-global
-description: 'Create or update skills for workspace, profile, or global scope.  Use to add or edit "global skills", "reusable skills", "profile skills" or "user skills".'
+description: 'Create or update skills for workspace, profile, or global scope.  Use to add or edit "global skills", "reusable skills", "profile skills" or "user skills". You need a dedicated skill for repeated multi-step tasks. You create an integration or work out a specific API and want to be able to reuse it.'
 argument-hint: 'scope=[workspace|profile|global](default:profile) name=<skill-name>'
 ---
 
@@ -9,7 +9,7 @@ argument-hint: 'scope=[workspace|profile|global](default:profile) name=<skill-na
 Create or update skills for workspace/profile/global targets.
 
 ## Shared Scope Resolution
-Use the inlined scope/path reference below for skill target path resolution.
+Resolve `$VSCODE_PROFILE` by running the co-located resolver script for the current platform.
 
 {{PROFILE_RESOLUTION_CONTENT}}
 
@@ -19,7 +19,7 @@ Use the inlined scope/path reference below for skill target path resolution.
 - You need to refactor long prompt procedures into skill instructions.
 
 ## Required Workflow
-1. Resolve target scope/path using the inlined scope/path reference in this file.
+1. Resolve `$VSCODE_PROFILE` using the co-located resolver script for the current platform, then map scope/path.
 2. Prefer `.agents/` over `.copilot/` or `.github/` for skills.
 3. Create or update `SKILL.md` with valid frontmatter and concise procedure steps.
 4. Add scripts/references only when needed.

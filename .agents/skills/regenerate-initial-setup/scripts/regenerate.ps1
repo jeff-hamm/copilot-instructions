@@ -35,4 +35,4 @@ if (-not [string]::IsNullOrWhiteSpace($model.TemporaryGlobalInstructionsPath)) {
   Write-Host "Temporary global instructions: $($model.TemporaryGlobalInstructionsPath)"
 }
 
-Write-Host "Included prompts: $($model.PromptSources.Count); included user-skill markdown files: $($model.SkillSources.Count)"
+Write-Host "Included prompts: $($model.PromptSources.Count); included user-skill files: $($model.SkillSources.Count)"

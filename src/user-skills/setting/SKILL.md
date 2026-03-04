@@ -9,18 +9,12 @@ argument-hint: 'scope=[workspace|global](default:global) type=[setting|task|mcp|
 Edit VS Code or Cursor setting/config files using scope-aware path resolution and safe change controls.
 
 ## Shared Scope Resolution
-Use the inlined scope/path reference below to resolve `$VSCODE_PROFILE` and target files.
+Resolve `$VSCODE_PROFILE` by running the co-located resolver script for the current platform.
 
 {{PROFILE_RESOLUTION_CONTENT}}
 
-## Use When
-- You need to update `settings.json`, `tasks.json`, or `mcp.json`.
-- You need to update keybindings via `keybindings.json`.
-- You need to add or modify Copilot instruction/prompt location settings.
-- You want JSON-safe updates with explicit diff review.
-
 ## Required Workflow
-1. Resolve target scope and file path using the inlined scope/path reference in this file.
+1. Resolve `$VSCODE_PROFILE` using the co-located resolver script for the current platform, then map scope and target file path.
 2. Check `git status` in the target repository when git is available.
 3. Create exactly one backup file per change at `<filename>.bak`.
 4. If `<filename>.bak` exists, replace its contents with the current pre-change contents of `<filename>`.

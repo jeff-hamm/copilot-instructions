@@ -125,16 +125,25 @@ function Get-UserSkillSources {
   }
 
   $files = Get-ChildItem -LiteralPath $skillRoot -Recurse -File -Filter "*.md" | Sort-Object FullName
-  $profileResolutionPath = Join-Path $skillRoot "common/profile-resolution.md"
-  $profileResolutionContent = Read-Source -Path $profileResolutionPath
+  $profileResolutionTemplatePath = Join-Path $WorkspaceRoot "src/profile-resolution-runner.template.md"
+  $profileResolutionContent = Read-Source -Path $profileResolutionTemplatePath
   $templateMap = @{
     '{{PROFILE_RESOLUTION_CONTENT}}' = $profileResolutionContent
   }
+
+  $resolverPs1Path = Join-Path $skillRoot "common/resolve-vscode-profile.ps1"
+  $resolverShPath = Join-Path $skillRoot "common/resolve-vscode-profile.sh"
+  $resolverPs1Content = Read-Source -Path $resolverPs1Path
+  $resolverShContent = Read-Source -Path $resolverShPath
+
   $result = @()
+  $resolverTargetDirs = New-Object System.Collections.Generic.HashSet[string]
 
   foreach ($file in $files) {
     $relative = Get-RelativePathNormalized -FullPath $file.FullName -BasePath $skillRoot
-    $content = Read-Source -Path $file.FullName
+    $rawContent = Read-Source -Path $file.FullName
+    $usesProfileResolutionTemplate = $rawContent.Contains('{{PROFILE_RESOLUTION_CONTENT}}')
+    $content = $rawContent
     $content = Expand-TemplateTokens -Content $content -TemplateMap $templateMap
     $metadata = Get-SkillMetadataFromContent -Content $content
 
@@ -149,6 +158,13 @@ function Get-UserSkillSources {
       "Shared skill reference file."
     }
 
+    if ($isSkill -and $usesProfileResolutionTemplate) {
+      $skillDir = (Split-Path -Path $relative -Parent) -replace "\\", "/"
+      if (-not [string]::IsNullOrWhiteSpace($skillDir)) {
+        [void]$resolverTargetDirs.Add($skillDir)
+      }
+    }
+
     $result += [PSCustomObject]@{
       SourcePath = $file.FullName
       RelativePath = $relative
@@ -157,6 +173,28 @@ function Get-UserSkillSources {
       IsSkill = $isSkill
       SkillName = $metadata.Name
       Summary = $summary
+    }
+  }
+
+  foreach ($targetDir in ($resolverTargetDirs | Sort-Object)) {
+    $result += [PSCustomObject]@{
+      SourcePath = $resolverPs1Path
+      RelativePath = "$targetDir/resolve-vscode-profile.ps1"
+      Section = ".agents/skills/$targetDir/resolve-vscode-profile.ps1"
+      Content = $resolverPs1Content
+      IsSkill = $false
+      SkillName = $null
+      Summary = "Generated co-located profile resolver script."
+    }
+
+    $result += [PSCustomObject]@{
+      SourcePath = $resolverShPath
+      RelativePath = "$targetDir/resolve-vscode-profile.sh"
+      Section = ".agents/skills/$targetDir/resolve-vscode-profile.sh"
+      Content = $resolverShContent
+      IsSkill = $false
+      SkillName = $null
+      Summary = "Generated co-located profile resolver script."
     }
   }
 
@@ -304,6 +342,7 @@ function Build-InitialSetupContent {
 
   $edit = Read-Source -Path (Join-Path $WorkspaceRoot "src/edit-global-files.readonly.prompt.md")
   $envPrep = Read-Source -Path (Join-Path $WorkspaceRoot "src/environment-setup.readonly.prompt.md")
+  $profileResolverSetup = Read-Source -Path (Join-Path $WorkspaceRoot "src/profile-resolution-scripts.readonly.prompt.md")
   $globalBootstrap = Read-Source -Path (Join-Path $WorkspaceRoot "src/global.bootstrap.readonly.instructions.md")
 
   $promptSources = Get-PromptSources -WorkspaceRoot $WorkspaceRoot
@@ -332,6 +371,8 @@ function Build-InitialSetupContent {
     $edit,
     "",
     $envPrep,
+    "",
+    $profileResolverSetup,
     "",
     $recreate,
     "",

@@ -9,7 +9,7 @@ argument-hint: 'scope=[workspace|global](default:global) name=<instruction-name>
 Create or update instruction files for workspace/profile/global targets.
 
 ## Shared Scope Resolution
-Use the inlined scope/path reference below to resolve supported profile/global/workspace instruction paths.
+Resolve `$VSCODE_PROFILE` by running the co-located resolver script for the current platform.
 
 {{PROFILE_RESOLUTION_CONTENT}}
 
@@ -23,7 +23,7 @@ Use the inlined scope/path reference below to resolve supported profile/global/w
 - `global` resolves to `$VSCODE_PROFILE/instructions/` in this setup.
 
 ## Required Workflow
-1. Resolve target scope and file path using the inlined scope/path reference in this file.
+1. Resolve `$VSCODE_PROFILE` using the co-located resolver script for the current platform, then map scope and target file path.
 2. Check `git status` in target repo when git is available.
 3. Create exactly one backup file per change at `<filename>.bak`.
 4. If `<filename>.bak` exists, replace its contents with the current pre-change contents of `<filename>`.

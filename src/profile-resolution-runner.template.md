@@ -1,0 +1,5 @@
+- Run the co-located resolver script and use its stdout as `$VSCODE_PROFILE`:
+  - Windows (PowerShell): `pwsh ./resolve-vscode-profile.ps1`
+  - macOS/Linux (bash/zsh): `bash ./resolve-vscode-profile.sh`
+- The script auto-detects VS Code Stable, VS Code Insiders, and Cursor channels when metadata is available.
+- If active-channel metadata is unavailable, the script falls back to channel-specific default profile paths.

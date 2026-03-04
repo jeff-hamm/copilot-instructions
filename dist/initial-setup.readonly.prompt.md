@@ -156,6 +156,14 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
   - If it doesn't already exist, append `$VSCODE_PROFILE/instructions` to the global setting `github.copilot.chat.codeGeneration.instructions` and `chat.instructionsFilesLocations` lists
   - If it doesn't already exist, append `$VSCODE_PROFILE/prompts` to the global setting `chat.promptFilesLocations` list
 
+## Co-located Profile Resolver Scripts
+- This setup installs per-platform scripts that resolve `$VSCODE_PROFILE`.
+- Source these scripts from `src/user-skills/common/` and install generated copies next to each managed user-skill `SKILL.md` file:
+  - `resolve-vscode-profile.ps1` for PowerShell environments
+  - `resolve-vscode-profile.sh` for bash/zsh environments
+- During skill execution, run the script that matches the current platform from that skill directory and use stdout as `$VSCODE_PROFILE`.
+- The resolver scripts automatically prefer the active editor channel (VS Code Stable, VS Code Insiders, or Cursor) when that metadata is available.
+
 ## Recreate prompts, instructions, and user-profile skills
 Create or update these files under $VSCODE_PROFILE and ~/.agents/skills, where each section title is the filename. Use the section's markdown as the file contents (copy verbatim)
 
@@ -312,7 +320,7 @@ applyTo: "**"
 ## Included User Skills (Generated)
 - `/create-instruction`: Create or update instruction files for workspace, profile, or global scope. Use to add or edit "global rules", "global instructions", "global instructions", "reusable instructions", "profile instructions" or "user instructions"
 - `/create-prompt-global`: Create or update reusable prompts for workspace, profile, or global scope. Use to add or edit "global prompts", "reusable prompts", "profile prompts" or "user prompts".
-- `/create-skill-global`: Create or update skills for workspace, profile, or global scope.  Use to add or edit "global skills", "reusable skills", "profile skills" or "user skills".
+- `/create-skill-global`: Create or update skills for workspace, profile, or global scope.  Use to add or edit "global skills", "reusable skills", "profile skills" or "user skills". You need a dedicated skill for repeated multi-step tasks. You create an integration or work out a specific API and want to be able to reuse it.
 - `/setting`: Edit VS Code or Cursor setting/config files with scope-aware targeting. Use for "global settings", "my settings", "vscode settings", or "user settings", including settings.json, tasks.json, mcp.json, and keybindings.
 - `/update-jumper-prompts`: Download and run this repo bootstrap prompt by fetching dist/initial-setup.readonly.prompt.md from raw GitHub, then running the downloaded prompt file.
 
@@ -408,69 +416,13 @@ argument-hint: 'scope=[workspace|global](default:global) name=<instruction-name>
 Create or update instruction files for workspace/profile/global targets.
 
 ## Shared Scope Resolution
-Use the inlined scope/path reference below to resolve supported profile/global/workspace instruction paths.
+Resolve `$VSCODE_PROFILE` by running the co-located resolver script for the current platform.
 
-# Scope And Profile Resolution
-
-Use this reference from user-profile skills to resolve target scope and paths without duplicating logic across VS Code and Cursor.
-
-## Resolve $VSCODE_PROFILE
-1. Determine the active editor family and channel first (VS Code Stable, VS Code Insiders, or Cursor) from active app metadata, and keep that channel when resolving paths.
-2. Resolve `$VSCODE_PROFILE` using the active editor profile path for that same family/channel.
-3. If the active profile path cannot be determined from settings/profiles metadata, use editor and channel fallback candidates:
-  - VS Code Windows Stable: `$Env:AppData\Code\User\`
-  - VS Code Windows Insiders: `$Env:AppData\Code - Insiders\User\`
-  - VS Code macOS Stable: `$HOME/Library/Application Support/Code/User/`
-  - VS Code macOS Insiders: `$HOME/Library/Application Support/Code - Insiders/User/`
-  - VS Code Linux Stable: `$HOME/.config/Code/User/`
-  - VS Code Linux Insiders: `$HOME/.config/Code - Insiders/User/`
-  - Cursor Windows: `$Env:AppData\Cursor\User\`
-  - Cursor macOS: `$HOME/Library/Application Support/Cursor/User/`
-  - Cursor Linux: `$HOME/.config/Cursor/User/`
-4. Treat this resolved path as `$VSCODE_PROFILE` for compatibility with existing prompt/instruction conventions.
-
-## Scope Modes
-- `workspace`: current repository/workspace files.
-- `profile`: VS Code or Cursor profile-level user customizations.
-- `global`: managed global files under `$VSCODE_PROFILE` used by this setup.
-
-## Path Mapping
-
-### Settings And Config
-- `global`:
-  - `$VSCODE_PROFILE/settings.json`
-  - `$VSCODE_PROFILE/tasks.json`
-  - `$VSCODE_PROFILE/mcp.json`
-  - `$VSCODE_PROFILE/keybindings.json`
-- `workspace`:
-  - `.vscode/settings.json`
-  - `.vscode/tasks.json`
-  - `.vscode/mcp.json` (if used)
-  - `.vscode/keybindings.json` (if used)
-
-### Instructions
-- `global`, `profile` or `user`:
-  - `$VSCODE_PROFILE/instructions/`
-- `workspace`:
-  - `.github/instructions/*.instructions.md`
-  - or workspace-level `copilot-instructions.md` where applicable
-
-### Prompts
-- `global`, `profile` or `user`:
-  - `$VSCODE_PROFILE/prompts/*.prompt.md`
-- `workspace`:
-  - `.github/prompts/*.prompt.md`
-
-### Skills
-- `profile` (preferred default):
-  - `~/.agents/skills/<name>/SKILL.md`
-- `workspace`:
-  - `.agents/skills/<name>/SKILL.md`
-- Prefer `.agents/` over `.copilot/` or `.github/` for skills.
-
-## Backup Rule
-- Use exactly one `.bak` file per target file per change.
-- If `<filename>.bak` already exists, replace its contents with the current pre-change contents of `<filename>`.
+- Run the co-located resolver script and use its stdout as `$VSCODE_PROFILE`:
+  - Windows (PowerShell): `pwsh ./resolve-vscode-profile.ps1`
+  - macOS/Linux (bash/zsh): `bash ./resolve-vscode-profile.sh`
+- The script auto-detects VS Code Stable, VS Code Insiders, and Cursor channels when metadata is available.
+- If active-channel metadata is unavailable, the script falls back to channel-specific default profile paths.
 
 ## Use When
 - You need to create `copilot-instructions.md` or `<name>.instructions.md`.
@@ -482,7 +434,7 @@ Use this reference from user-profile skills to resolve target scope and paths wi
 - `global` resolves to `$VSCODE_PROFILE/instructions/` in this setup.
 
 ## Required Workflow
-1. Resolve target scope and file path using the inlined scope/path reference in this file.
+1. Resolve `$VSCODE_PROFILE` using the co-located resolver script for the current platform, then map scope and target file path.
 2. Check `git status` in target repo when git is available.
 3. Create exactly one backup file per change at `<filename>.bak`.
 4. If `<filename>.bak` exists, replace its contents with the current pre-change contents of `<filename>`.
@@ -510,69 +462,13 @@ argument-hint: 'scope=[workspace|global](default:global) name=<prompt-name>'
 Create or update reusable prompt files for workspace/profile/global targets.
 
 ## Shared Scope Resolution
-Use the inlined scope/path reference below for prompt path resolution.
+Resolve `$VSCODE_PROFILE` by running the co-located resolver script for the current platform.
 
-# Scope And Profile Resolution
-
-Use this reference from user-profile skills to resolve target scope and paths without duplicating logic across VS Code and Cursor.
-
-## Resolve $VSCODE_PROFILE
-1. Determine the active editor family and channel first (VS Code Stable, VS Code Insiders, or Cursor) from active app metadata, and keep that channel when resolving paths.
-2. Resolve `$VSCODE_PROFILE` using the active editor profile path for that same family/channel.
-3. If the active profile path cannot be determined from settings/profiles metadata, use editor and channel fallback candidates:
-  - VS Code Windows Stable: `$Env:AppData\Code\User\`
-  - VS Code Windows Insiders: `$Env:AppData\Code - Insiders\User\`
-  - VS Code macOS Stable: `$HOME/Library/Application Support/Code/User/`
-  - VS Code macOS Insiders: `$HOME/Library/Application Support/Code - Insiders/User/`
-  - VS Code Linux Stable: `$HOME/.config/Code/User/`
-  - VS Code Linux Insiders: `$HOME/.config/Code - Insiders/User/`
-  - Cursor Windows: `$Env:AppData\Cursor\User\`
-  - Cursor macOS: `$HOME/Library/Application Support/Cursor/User/`
-  - Cursor Linux: `$HOME/.config/Cursor/User/`
-4. Treat this resolved path as `$VSCODE_PROFILE` for compatibility with existing prompt/instruction conventions.
-
-## Scope Modes
-- `workspace`: current repository/workspace files.
-- `profile`: VS Code or Cursor profile-level user customizations.
-- `global`: managed global files under `$VSCODE_PROFILE` used by this setup.
-
-## Path Mapping
-
-### Settings And Config
-- `global`:
-  - `$VSCODE_PROFILE/settings.json`
-  - `$VSCODE_PROFILE/tasks.json`
-  - `$VSCODE_PROFILE/mcp.json`
-  - `$VSCODE_PROFILE/keybindings.json`
-- `workspace`:
-  - `.vscode/settings.json`
-  - `.vscode/tasks.json`
-  - `.vscode/mcp.json` (if used)
-  - `.vscode/keybindings.json` (if used)
-
-### Instructions
-- `global`, `profile` or `user`:
-  - `$VSCODE_PROFILE/instructions/`
-- `workspace`:
-  - `.github/instructions/*.instructions.md`
-  - or workspace-level `copilot-instructions.md` where applicable
-
-### Prompts
-- `global`, `profile` or `user`:
-  - `$VSCODE_PROFILE/prompts/*.prompt.md`
-- `workspace`:
-  - `.github/prompts/*.prompt.md`
-
-### Skills
-- `profile` (preferred default):
-  - `~/.agents/skills/<name>/SKILL.md`
-- `workspace`:
-  - `.agents/skills/<name>/SKILL.md`
-- Prefer `.agents/` over `.copilot/` or `.github/` for skills.
-
-## Backup Rule
-- Use exactly one `.bak` file per target file per change.
-- If `<filename>.bak` already exists, replace its contents with the current pre-change contents of `<filename>`.
+- Run the co-located resolver script and use its stdout as `$VSCODE_PROFILE`:
+  - Windows (PowerShell): `pwsh ./resolve-vscode-profile.ps1`
+  - macOS/Linux (bash/zsh): `bash ./resolve-vscode-profile.sh`
+- The script auto-detects VS Code Stable, VS Code Insiders, and Cursor channels when metadata is available.
+- If active-channel metadata is unavailable, the script falls back to channel-specific default profile paths.
 
 ## Use When
 - You need a new workflow prompt (`*.prompt.md`).
@@ -584,7 +480,7 @@ Use this reference from user-profile skills to resolve target scope and paths wi
 - `global` resolves to `$VSCODE_PROFILE/prompts/` in this setup.
 
 ## Required Workflow
-1. Resolve target scope and file path using the inlined scope/path reference in this file.
+1. Resolve `$VSCODE_PROFILE` using the co-located resolver script for the current platform, then map scope and target file path.
 2. Explore existing prompt files for overlap before adding a new file.
 3. Check `git status` in target repo when git is available.
 4. Create exactly one backup file per change at `<filename>.bak`.
@@ -603,7 +499,7 @@ Use this reference from user-profile skills to resolve target scope and paths wi
 ````markdown
 ---
 name: create-skill-global
-description: 'Create or update skills for workspace, profile, or global scope.  Use to add or edit "global skills", "reusable skills", "profile skills" or "user skills".'
+description: 'Create or update skills for workspace, profile, or global scope.  Use to add or edit "global skills", "reusable skills", "profile skills" or "user skills". You need a dedicated skill for repeated multi-step tasks. You create an integration or work out a specific API and want to be able to reuse it.'
 argument-hint: 'scope=[workspace|profile|global](default:profile) name=<skill-name>'
 ---
 
@@ -612,69 +508,13 @@ argument-hint: 'scope=[workspace|profile|global](default:profile) name=<skill-na
 Create or update skills for workspace/profile/global targets.
 
 ## Shared Scope Resolution
-Use the inlined scope/path reference below for skill target path resolution.
+Resolve `$VSCODE_PROFILE` by running the co-located resolver script for the current platform.
 
-# Scope And Profile Resolution
-
-Use this reference from user-profile skills to resolve target scope and paths without duplicating logic across VS Code and Cursor.
-
-## Resolve $VSCODE_PROFILE
-1. Determine the active editor family and channel first (VS Code Stable, VS Code Insiders, or Cursor) from active app metadata, and keep that channel when resolving paths.
-2. Resolve `$VSCODE_PROFILE` using the active editor profile path for that same family/channel.
-3. If the active profile path cannot be determined from settings/profiles metadata, use editor and channel fallback candidates:
-  - VS Code Windows Stable: `$Env:AppData\Code\User\`
-  - VS Code Windows Insiders: `$Env:AppData\Code - Insiders\User\`
-  - VS Code macOS Stable: `$HOME/Library/Application Support/Code/User/`
-  - VS Code macOS Insiders: `$HOME/Library/Application Support/Code - Insiders/User/`
-  - VS Code Linux Stable: `$HOME/.config/Code/User/`
-  - VS Code Linux Insiders: `$HOME/.config/Code - Insiders/User/`
-  - Cursor Windows: `$Env:AppData\Cursor\User\`
-  - Cursor macOS: `$HOME/Library/Application Support/Cursor/User/`
-  - Cursor Linux: `$HOME/.config/Cursor/User/`
-4. Treat this resolved path as `$VSCODE_PROFILE` for compatibility with existing prompt/instruction conventions.
-
-## Scope Modes
-- `workspace`: current repository/workspace files.
-- `profile`: VS Code or Cursor profile-level user customizations.
-- `global`: managed global files under `$VSCODE_PROFILE` used by this setup.
-
-## Path Mapping
-
-### Settings And Config
-- `global`:
-  - `$VSCODE_PROFILE/settings.json`
-  - `$VSCODE_PROFILE/tasks.json`
-  - `$VSCODE_PROFILE/mcp.json`
-  - `$VSCODE_PROFILE/keybindings.json`
-- `workspace`:
-  - `.vscode/settings.json`
-  - `.vscode/tasks.json`
-  - `.vscode/mcp.json` (if used)
-  - `.vscode/keybindings.json` (if used)
-
-### Instructions
-- `global`, `profile` or `user`:
-  - `$VSCODE_PROFILE/instructions/`
-- `workspace`:
-  - `.github/instructions/*.instructions.md`
-  - or workspace-level `copilot-instructions.md` where applicable
-
-### Prompts
-- `global`, `profile` or `user`:
-  - `$VSCODE_PROFILE/prompts/*.prompt.md`
-- `workspace`:
-  - `.github/prompts/*.prompt.md`
-
-### Skills
-- `profile` (preferred default):
-  - `~/.agents/skills/<name>/SKILL.md`
-- `workspace`:
-  - `.agents/skills/<name>/SKILL.md`
-- Prefer `.agents/` over `.copilot/` or `.github/` for skills.
-
-## Backup Rule
-- Use exactly one `.bak` file per target file per change.
-- If `<filename>.bak` already exists, replace its contents with the current pre-change contents of `<filename>`.
+- Run the co-located resolver script and use its stdout as `$VSCODE_PROFILE`:
+  - Windows (PowerShell): `pwsh ./resolve-vscode-profile.ps1`
+  - macOS/Linux (bash/zsh): `bash ./resolve-vscode-profile.sh`
+- The script auto-detects VS Code Stable, VS Code Insiders, and Cursor channels when metadata is available.
+- If active-channel metadata is unavailable, the script falls back to channel-specific default profile paths.
 
 ## Use When
 - You want reusable slash workflows beyond prompts.
@@ -682,7 +522,7 @@ Use this reference from user-profile skills to resolve target scope and paths wi
 - You need to refactor long prompt procedures into skill instructions.
 
 ## Required Workflow
-1. Resolve target scope/path using the inlined scope/path reference in this file.
+1. Resolve `$VSCODE_PROFILE` using the co-located resolver script for the current platform, then map scope/path.
 2. Prefer `.agents/` over `.copilot/` or `.github/` for skills.
 3. Create or update `SKILL.md` with valid frontmatter and concise procedure steps.
 4. Add scripts/references only when needed.
@@ -709,78 +549,16 @@ argument-hint: 'scope=[workspace|global](default:global) type=[setting|task|mcp|
 Edit VS Code or Cursor setting/config files using scope-aware path resolution and safe change controls.
 
 ## Shared Scope Resolution
-Use the inlined scope/path reference below to resolve `$VSCODE_PROFILE` and target files.
+Resolve `$VSCODE_PROFILE` by running the co-located resolver script for the current platform.
 
-# Scope And Profile Resolution
-
-Use this reference from user-profile skills to resolve target scope and paths without duplicating logic across VS Code and Cursor.
-
-## Resolve $VSCODE_PROFILE
-1. Determine the active editor family and channel first (VS Code Stable, VS Code Insiders, or Cursor) from active app metadata, and keep that channel when resolving paths.
-2. Resolve `$VSCODE_PROFILE` using the active editor profile path for that same family/channel.
-3. If the active profile path cannot be determined from settings/profiles metadata, use editor and channel fallback candidates:
-  - VS Code Windows Stable: `$Env:AppData\Code\User\`
-  - VS Code Windows Insiders: `$Env:AppData\Code - Insiders\User\`
-  - VS Code macOS Stable: `$HOME/Library/Application Support/Code/User/`
-  - VS Code macOS Insiders: `$HOME/Library/Application Support/Code - Insiders/User/`
-  - VS Code Linux Stable: `$HOME/.config/Code/User/`
-  - VS Code Linux Insiders: `$HOME/.config/Code - Insiders/User/`
-  - Cursor Windows: `$Env:AppData\Cursor\User\`
-  - Cursor macOS: `$HOME/Library/Application Support/Cursor/User/`
-  - Cursor Linux: `$HOME/.config/Cursor/User/`
-4. Treat this resolved path as `$VSCODE_PROFILE` for compatibility with existing prompt/instruction conventions.
-
-## Scope Modes
-- `workspace`: current repository/workspace files.
-- `profile`: VS Code or Cursor profile-level user customizations.
-- `global`: managed global files under `$VSCODE_PROFILE` used by this setup.
-
-## Path Mapping
-
-### Settings And Config
-- `global`:
-  - `$VSCODE_PROFILE/settings.json`
-  - `$VSCODE_PROFILE/tasks.json`
-  - `$VSCODE_PROFILE/mcp.json`
-  - `$VSCODE_PROFILE/keybindings.json`
-- `workspace`:
-  - `.vscode/settings.json`
-  - `.vscode/tasks.json`
-  - `.vscode/mcp.json` (if used)
-  - `.vscode/keybindings.json` (if used)
-
-### Instructions
-- `global`, `profile` or `user`:
-  - `$VSCODE_PROFILE/instructions/`
-- `workspace`:
-  - `.github/instructions/*.instructions.md`
-  - or workspace-level `copilot-instructions.md` where applicable
-
-### Prompts
-- `global`, `profile` or `user`:
-  - `$VSCODE_PROFILE/prompts/*.prompt.md`
-- `workspace`:
-  - `.github/prompts/*.prompt.md`
-
-### Skills
-- `profile` (preferred default):
-  - `~/.agents/skills/<name>/SKILL.md`
-- `workspace`:
-  - `.agents/skills/<name>/SKILL.md`
-- Prefer `.agents/` over `.copilot/` or `.github/` for skills.
-
-## Backup Rule
-- Use exactly one `.bak` file per target file per change.
-- If `<filename>.bak` already exists, replace its contents with the current pre-change contents of `<filename>`.
-
-## Use When
-- You need to update `settings.json`, `tasks.json`, or `mcp.json`.
-- You need to update keybindings via `keybindings.json`.
-- You need to add or modify Copilot instruction/prompt location settings.
-- You want JSON-safe updates with explicit diff review.
+- Run the co-located resolver script and use its stdout as `$VSCODE_PROFILE`:
+  - Windows (PowerShell): `pwsh ./resolve-vscode-profile.ps1`
+  - macOS/Linux (bash/zsh): `bash ./resolve-vscode-profile.sh`
+- The script auto-detects VS Code Stable, VS Code Insiders, and Cursor channels when metadata is available.
+- If active-channel metadata is unavailable, the script falls back to channel-specific default profile paths.
 
 ## Required Workflow
-1. Resolve target scope and file path using the inlined scope/path reference in this file.
+1. Resolve `$VSCODE_PROFILE` using the co-located resolver script for the current platform, then map scope and target file path.
 2. Check `git status` in the target repository when git is available.
 3. Create exactly one backup file per change at `<filename>.bak`.
 4. If `<filename>.bak` exists, replace its contents with the current pre-change contents of `<filename>`.
@@ -831,6 +609,346 @@ Download and run this repo's bootstrap prompt from raw GitHub.
 - If download fails, surface the exact URL and error.
 - Do not modify files outside this update flow unless explicitly requested.
 - Keep the workflow platform-agnostic (no shell-specific temp environment syntax).
+````
+
+### .agents/skills/create-instruction/resolve-vscode-profile.ps1
+````markdown
+$ErrorActionPreference = "Stop"
+
+function Select-FirstExisting {
+  param([string[]]$Candidates)
+
+  foreach ($candidate in $Candidates) {
+    if (Test-Path -LiteralPath $candidate) {
+      return $candidate
+    }
+  }
+
+  return $Candidates[0]
+}
+
+$stable = Join-Path $Env:AppData "Code\User"
+$insiders = Join-Path $Env:AppData "Code - Insiders\User"
+$cursor = Join-Path $Env:AppData "Cursor\User"
+
+$hints = @(
+  $Env:VSCODE_IPC_HOOK,
+  $Env:VSCODE_GIT_ASKPASS_MAIN,
+  $Env:TERM_PROGRAM,
+  $Env:TERM_PROGRAM_VERSION
+) -join "`n"
+
+if ($hints -match "Code - Insiders") {
+  $ordered = @($insiders, $stable, $cursor)
+}
+elseif ($hints -match "Cursor") {
+  $ordered = @($cursor, $stable, $insiders)
+}
+else {
+  $ordered = @($stable, $insiders, $cursor)
+}
+
+$resolved = Select-FirstExisting -Candidates $ordered
+Write-Output $resolved
+````
+
+### .agents/skills/create-instruction/resolve-vscode-profile.sh
+````markdown
+#!/usr/bin/env bash
+set -euo pipefail
+
+pick_first_existing() {
+  for p in "$@"; do
+    if [ -d "$p" ]; then
+      printf '%s\n' "$p"
+      return 0
+    fi
+  done
+  printf '%s\n' "$1"
+}
+
+stable_macos="$HOME/Library/Application Support/Code/User"
+insiders_macos="$HOME/Library/Application Support/Code - Insiders/User"
+cursor_macos="$HOME/Library/Application Support/Cursor/User"
+
+stable_linux="$HOME/.config/Code/User"
+insiders_linux="$HOME/.config/Code - Insiders/User"
+cursor_linux="$HOME/.config/Cursor/User"
+
+hints="${TERM_PROGRAM-} ${TERM_PROGRAM_VERSION-} ${VSCODE_IPC_HOOK-} ${VSCODE_GIT_ASKPASS_MAIN-}"
+
+if [ "$(uname -s)" = "Darwin" ]; then
+  if printf '%s' "$hints" | grep -q "Code - Insiders"; then
+    pick_first_existing "$insiders_macos" "$stable_macos" "$cursor_macos"
+  elif printf '%s' "$hints" | grep -q "Cursor"; then
+    pick_first_existing "$cursor_macos" "$stable_macos" "$insiders_macos"
+  else
+    pick_first_existing "$stable_macos" "$insiders_macos" "$cursor_macos"
+  fi
+else
+  if printf '%s' "$hints" | grep -q "Code - Insiders"; then
+    pick_first_existing "$insiders_linux" "$stable_linux" "$cursor_linux"
+  elif printf '%s' "$hints" | grep -q "Cursor"; then
+    pick_first_existing "$cursor_linux" "$stable_linux" "$insiders_linux"
+  else
+    pick_first_existing "$stable_linux" "$insiders_linux" "$cursor_linux"
+  fi
+fi
+````
+
+### .agents/skills/create-prompt-global/resolve-vscode-profile.ps1
+````markdown
+$ErrorActionPreference = "Stop"
+
+function Select-FirstExisting {
+  param([string[]]$Candidates)
+
+  foreach ($candidate in $Candidates) {
+    if (Test-Path -LiteralPath $candidate) {
+      return $candidate
+    }
+  }
+
+  return $Candidates[0]
+}
+
+$stable = Join-Path $Env:AppData "Code\User"
+$insiders = Join-Path $Env:AppData "Code - Insiders\User"
+$cursor = Join-Path $Env:AppData "Cursor\User"
+
+$hints = @(
+  $Env:VSCODE_IPC_HOOK,
+  $Env:VSCODE_GIT_ASKPASS_MAIN,
+  $Env:TERM_PROGRAM,
+  $Env:TERM_PROGRAM_VERSION
+) -join "`n"
+
+if ($hints -match "Code - Insiders") {
+  $ordered = @($insiders, $stable, $cursor)
+}
+elseif ($hints -match "Cursor") {
+  $ordered = @($cursor, $stable, $insiders)
+}
+else {
+  $ordered = @($stable, $insiders, $cursor)
+}
+
+$resolved = Select-FirstExisting -Candidates $ordered
+Write-Output $resolved
+````
+
+### .agents/skills/create-prompt-global/resolve-vscode-profile.sh
+````markdown
+#!/usr/bin/env bash
+set -euo pipefail
+
+pick_first_existing() {
+  for p in "$@"; do
+    if [ -d "$p" ]; then
+      printf '%s\n' "$p"
+      return 0
+    fi
+  done
+  printf '%s\n' "$1"
+}
+
+stable_macos="$HOME/Library/Application Support/Code/User"
+insiders_macos="$HOME/Library/Application Support/Code - Insiders/User"
+cursor_macos="$HOME/Library/Application Support/Cursor/User"
+
+stable_linux="$HOME/.config/Code/User"
+insiders_linux="$HOME/.config/Code - Insiders/User"
+cursor_linux="$HOME/.config/Cursor/User"
+
+hints="${TERM_PROGRAM-} ${TERM_PROGRAM_VERSION-} ${VSCODE_IPC_HOOK-} ${VSCODE_GIT_ASKPASS_MAIN-}"
+
+if [ "$(uname -s)" = "Darwin" ]; then
+  if printf '%s' "$hints" | grep -q "Code - Insiders"; then
+    pick_first_existing "$insiders_macos" "$stable_macos" "$cursor_macos"
+  elif printf '%s' "$hints" | grep -q "Cursor"; then
+    pick_first_existing "$cursor_macos" "$stable_macos" "$insiders_macos"
+  else
+    pick_first_existing "$stable_macos" "$insiders_macos" "$cursor_macos"
+  fi
+else
+  if printf '%s' "$hints" | grep -q "Code - Insiders"; then
+    pick_first_existing "$insiders_linux" "$stable_linux" "$cursor_linux"
+  elif printf '%s' "$hints" | grep -q "Cursor"; then
+    pick_first_existing "$cursor_linux" "$stable_linux" "$insiders_linux"
+  else
+    pick_first_existing "$stable_linux" "$insiders_linux" "$cursor_linux"
+  fi
+fi
+````
+
+### .agents/skills/create-skill-global/resolve-vscode-profile.ps1
+````markdown
+$ErrorActionPreference = "Stop"
+
+function Select-FirstExisting {
+  param([string[]]$Candidates)
+
+  foreach ($candidate in $Candidates) {
+    if (Test-Path -LiteralPath $candidate) {
+      return $candidate
+    }
+  }
+
+  return $Candidates[0]
+}
+
+$stable = Join-Path $Env:AppData "Code\User"
+$insiders = Join-Path $Env:AppData "Code - Insiders\User"
+$cursor = Join-Path $Env:AppData "Cursor\User"
+
+$hints = @(
+  $Env:VSCODE_IPC_HOOK,
+  $Env:VSCODE_GIT_ASKPASS_MAIN,
+  $Env:TERM_PROGRAM,
+  $Env:TERM_PROGRAM_VERSION
+) -join "`n"
+
+if ($hints -match "Code - Insiders") {
+  $ordered = @($insiders, $stable, $cursor)
+}
+elseif ($hints -match "Cursor") {
+  $ordered = @($cursor, $stable, $insiders)
+}
+else {
+  $ordered = @($stable, $insiders, $cursor)
+}
+
+$resolved = Select-FirstExisting -Candidates $ordered
+Write-Output $resolved
+````
+
+### .agents/skills/create-skill-global/resolve-vscode-profile.sh
+````markdown
+#!/usr/bin/env bash
+set -euo pipefail
+
+pick_first_existing() {
+  for p in "$@"; do
+    if [ -d "$p" ]; then
+      printf '%s\n' "$p"
+      return 0
+    fi
+  done
+  printf '%s\n' "$1"
+}
+
+stable_macos="$HOME/Library/Application Support/Code/User"
+insiders_macos="$HOME/Library/Application Support/Code - Insiders/User"
+cursor_macos="$HOME/Library/Application Support/Cursor/User"
+
+stable_linux="$HOME/.config/Code/User"
+insiders_linux="$HOME/.config/Code - Insiders/User"
+cursor_linux="$HOME/.config/Cursor/User"
+
+hints="${TERM_PROGRAM-} ${TERM_PROGRAM_VERSION-} ${VSCODE_IPC_HOOK-} ${VSCODE_GIT_ASKPASS_MAIN-}"
+
+if [ "$(uname -s)" = "Darwin" ]; then
+  if printf '%s' "$hints" | grep -q "Code - Insiders"; then
+    pick_first_existing "$insiders_macos" "$stable_macos" "$cursor_macos"
+  elif printf '%s' "$hints" | grep -q "Cursor"; then
+    pick_first_existing "$cursor_macos" "$stable_macos" "$insiders_macos"
+  else
+    pick_first_existing "$stable_macos" "$insiders_macos" "$cursor_macos"
+  fi
+else
+  if printf '%s' "$hints" | grep -q "Code - Insiders"; then
+    pick_first_existing "$insiders_linux" "$stable_linux" "$cursor_linux"
+  elif printf '%s' "$hints" | grep -q "Cursor"; then
+    pick_first_existing "$cursor_linux" "$stable_linux" "$insiders_linux"
+  else
+    pick_first_existing "$stable_linux" "$insiders_linux" "$cursor_linux"
+  fi
+fi
+````
+
+### .agents/skills/setting/resolve-vscode-profile.ps1
+````markdown
+$ErrorActionPreference = "Stop"
+
+function Select-FirstExisting {
+  param([string[]]$Candidates)
+
+  foreach ($candidate in $Candidates) {
+    if (Test-Path -LiteralPath $candidate) {
+      return $candidate
+    }
+  }
+
+  return $Candidates[0]
+}
+
+$stable = Join-Path $Env:AppData "Code\User"
+$insiders = Join-Path $Env:AppData "Code - Insiders\User"
+$cursor = Join-Path $Env:AppData "Cursor\User"
+
+$hints = @(
+  $Env:VSCODE_IPC_HOOK,
+  $Env:VSCODE_GIT_ASKPASS_MAIN,
+  $Env:TERM_PROGRAM,
+  $Env:TERM_PROGRAM_VERSION
+) -join "`n"
+
+if ($hints -match "Code - Insiders") {
+  $ordered = @($insiders, $stable, $cursor)
+}
+elseif ($hints -match "Cursor") {
+  $ordered = @($cursor, $stable, $insiders)
+}
+else {
+  $ordered = @($stable, $insiders, $cursor)
+}
+
+$resolved = Select-FirstExisting -Candidates $ordered
+Write-Output $resolved
+````
+
+### .agents/skills/setting/resolve-vscode-profile.sh
+````markdown
+#!/usr/bin/env bash
+set -euo pipefail
+
+pick_first_existing() {
+  for p in "$@"; do
+    if [ -d "$p" ]; then
+      printf '%s\n' "$p"
+      return 0
+    fi
+  done
+  printf '%s\n' "$1"
+}
+
+stable_macos="$HOME/Library/Application Support/Code/User"
+insiders_macos="$HOME/Library/Application Support/Code - Insiders/User"
+cursor_macos="$HOME/Library/Application Support/Cursor/User"
+
+stable_linux="$HOME/.config/Code/User"
+insiders_linux="$HOME/.config/Code - Insiders/User"
+cursor_linux="$HOME/.config/Cursor/User"
+
+hints="${TERM_PROGRAM-} ${TERM_PROGRAM_VERSION-} ${VSCODE_IPC_HOOK-} ${VSCODE_GIT_ASKPASS_MAIN-}"
+
+if [ "$(uname -s)" = "Darwin" ]; then
+  if printf '%s' "$hints" | grep -q "Code - Insiders"; then
+    pick_first_existing "$insiders_macos" "$stable_macos" "$cursor_macos"
+  elif printf '%s' "$hints" | grep -q "Cursor"; then
+    pick_first_existing "$cursor_macos" "$stable_macos" "$insiders_macos"
+  else
+    pick_first_existing "$stable_macos" "$insiders_macos" "$cursor_macos"
+  fi
+else
+  if printf '%s' "$hints" | grep -q "Code - Insiders"; then
+    pick_first_existing "$insiders_linux" "$stable_linux" "$cursor_linux"
+  elif printf '%s' "$hints" | grep -q "Cursor"; then
+    pick_first_existing "$cursor_linux" "$stable_linux" "$insiders_linux"
+  else
+    pick_first_existing "$stable_linux" "$insiders_linux" "$cursor_linux"
+  fi
+fi
 ````
 
 ## Setup-only references (do not install)
