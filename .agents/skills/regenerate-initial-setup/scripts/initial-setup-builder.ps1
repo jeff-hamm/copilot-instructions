@@ -150,60 +150,36 @@ function Build-DynamicGlobalInstructions {
     [array]$SkillSources
   )
 
-  $base = Read-Source -Path (Join-Path $WorkspaceRoot "src/global.readonly.instructions.md")
-  $baseLines = @($base -split "`n")
+  $templatePath = Join-Path $WorkspaceRoot "src/global.readonly.instructions.template.md"
+  $template = Read-Source -Path $templatePath
 
-  $routerStart = [Array]::IndexOf($baseLines, "## Global Edit Routing")
-  if ($routerStart -lt 0) {
-    throw "Missing '## Global Edit Routing' section in src/global.readonly.instructions.md"
-  }
-
-  $nextSection = -1
-  for ($i = $routerStart + 1; $i -lt $baseLines.Count; $i++) {
-    if ($baseLines[$i] -like "## *") {
-      $nextSection = $i
-      break
-    }
-  }
-
-  $prefix = @()
-  if ($routerStart -gt 0) {
-    $prefix = @($baseLines[0..($routerStart - 1)])
-  }
-
-  $routerSection = if ($nextSection -gt 0) {
-    @($baseLines[$routerStart..($nextSection - 1)])
+  $promptItems = if ($PromptSources.Count -eq 0) {
+    '- None detected in `src/prompts/`.'
   }
   else {
-    @($baseLines[$routerStart..($baseLines.Count - 1)])
+    (@($PromptSources | ForEach-Object { '- `{0}`: {1}' -f $_.Name, $_.Summary }) -join "`n")
   }
 
-  $routerOnlyBase = ((@($prefix + $routerSection) -join "`n").TrimEnd("`n"))
-  $lines = @($routerOnlyBase, "")
-
-  $lines += "## Included Prompt Files (Generated)"
-  if ($PromptSources.Count -eq 0) {
-    $lines += '- None detected in `src/prompts/`.'
-  }
-  else {
-    foreach ($prompt in $PromptSources) {
-      $lines += ('- `{0}`: {1}' -f $prompt.Name, $prompt.Summary)
-    }
-  }
-
-  $lines += ""
-  $lines += "## Included User Skills (Generated)"
   $skillItems = @($SkillSources | Where-Object { $_.IsSkill })
-  if ($skillItems.Count -eq 0) {
-    $lines += '- None detected in `src/user-skills/`.'
+  $skillItemsText = if ($skillItems.Count -eq 0) {
+    '- None detected in `src/user-skills/`.'
   }
   else {
-    foreach ($skill in $skillItems) {
-      $lines += ('- `/{0}`: {1}' -f $skill.SkillName, $skill.Summary)
-    }
+    (@($skillItems | ForEach-Object { '- `/{0}`: {1}' -f $_.SkillName, $_.Summary }) -join "`n")
   }
 
-  return ($lines -join "`n")
+  if (-not $template.Contains('{{GENERATED_PROMPT_ITEMS}}')) {
+    throw "Missing template placeholder '{{GENERATED_PROMPT_ITEMS}}' in $templatePath"
+  }
+
+  if (-not $template.Contains('{{GENERATED_SKILL_ITEMS}}')) {
+    throw "Missing template placeholder '{{GENERATED_SKILL_ITEMS}}' in $templatePath"
+  }
+
+  $rendered = $template.Replace('{{GENERATED_PROMPT_ITEMS}}', $promptItems)
+  $rendered = $rendered.Replace('{{GENERATED_SKILL_ITEMS}}', $skillItemsText)
+
+  return $rendered
 }
 
 function Write-TemporaryGlobalInstructions {

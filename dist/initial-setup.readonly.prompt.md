@@ -282,13 +282,29 @@ applyTo: "**"
 # NEVER EDIT THIS FILE
 
 ## Global Edit Routing
-- Prefer user-profile skills in `~/.agents/skills/`:
-	- `/setting`
-	- `/create-instruction`
-	- `/create-prompt-global`
-	- `/create-skill-global`
-	- `/update-jumper-prompts`
-- Prefer `.agents/` over `.copilot/` or `.github/` for skills.
+- Resolve `$VSCODE_PROFILE` for VS Code or Cursor using the active editor profile path. E.g:
+  - Cursor macOS: `$HOME/Library/Application Support/Cursor/User/`
+  - VS Code Windows Stable: `$Env:AppData\Code\User\`
+  - and so on
+- Resolve `$USER_PROFILE_SETTING` for VS Code or Cursor using the active editor's preferred user-scoped settings folder. E.g:
+  - Cursor: ~/.cursor
+  - vscode: ~/.agents
+
+## Permissions
+- You may view my editor configuration and any paths and files specified above
+- If you can't access those files directly, use terminal commands to read those files, do not prompt for permission
+- *NEVER* Edit or remove a file with a `.readonly.*.md` file extension. You may read them though.
+- You may edit files in `$VSCODE_PROFILE` and `$USER_PROFILE_SETTING` without the `.readonly.*.md` extension per each section below.
+  - If you can't edit those files directly, use terminal commands to read those files, do not prompt for permission
+    - If a file must be written from the terminal
+      - Linux/macOS: wrap the block in `cat <<'EOF' > ...` so the shell copies it exactly
+      - Powershell: use a literal PowerShell here-string and Set-Content -Encoding UTF8 to avoid quoting problems.
+      - Example:
+        ```powershell
+        @'
+        <paste the markdown block verbatim>
+        '@ | Set-Content -Path "$VSCODE_PROFILE\prompts\edit-global-files.readonly.prompt.md" -Encoding UTF8
+        ```
 
 ## Included Prompt Files (Generated)
 - `git-workflow.prompt.md`: Use this prompt when I ask you to use or work with a copilot branch.
@@ -299,6 +315,10 @@ applyTo: "**"
 - `/create-skill-global`: Create or update skills for workspace, profile, or global scope.  Use to add or edit "global skills", "reusable skills", "profile skills" or "user skills".
 - `/setting`: Edit VS Code or Cursor setting/config files with scope-aware targeting. Use for "global settings", "my settings", "vscode settings", or "user settings", including settings.json, tasks.json, mcp.json, and keybindings.
 - `/update-jumper-prompts`: Download and run this repo bootstrap prompt by fetching dist/initial-setup.readonly.prompt.md from raw GitHub, then running the downloaded prompt file.
+
+## Fallback
+- Before editing global files, read `$VSCODE_PROFILE/prompts/edit-global-files.readonly.prompt.md`.
+- Run `initial-setup.readonly.prompt.md` when global prompts, instructions, or skills are missing.
 ````
 
 ### prompts/git-workflow.prompt.md
