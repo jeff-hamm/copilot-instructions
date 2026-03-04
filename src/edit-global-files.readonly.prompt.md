@@ -65,13 +65,13 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
 ## Backup
 - Before making a change to any file in `$VSCODE_PROFILE` or `$AGENTS_SKILLS_HOME`
   - check to see if the target path is in a git repository and has uncommitted changes with `git status`. If so, prompt me to review and commit or stash them first. If I'd like to commit them, create a commit message summarizing the changes and commit them.
-  - Create exactly one backup file per change at `<filename>.bak` before modifying any global file. If that file exists, rename it to `<filename>.bak.tmp` (delete existing `.bak.tmp` first) and then create a new `<filename>.bak`.
+  - Create exactly one backup file per change at `<filename>.bak` before modifying any global file. If that file exists, replace its contents with the current pre-change contents of `<filename>`.
 - After making changes:
   1. If the target path is in git, show the diff with `git diff <filename>` and summary with `git diff --stat <filename>`
   2. If the target path is not in git, show an equivalent before/after comparison
   3. Explain what changed and why
   4. Ask if I approve
-    - if no, revert it by renaming `<filename>.bak` to `<filename>` and `<filename>.bak.tmp` to `<filename>.bak`
+    - if no, revert it by restoring `<filename>` from `<filename>.bak`
     - if yes and target path is in git
       1. Stage the changes with `git add <filename>`
       2. Commit with a descriptive message using `git commit -m "..."`

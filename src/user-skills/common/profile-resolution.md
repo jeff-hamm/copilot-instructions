@@ -3,8 +3,9 @@
 Use this reference from user-profile skills to resolve target scope and paths without duplicating logic across VS Code and Cursor.
 
 ## Resolve $VSCODE_PROFILE
-1. Resolve `$VSCODE_PROFILE` for VS Code or Cursor using the active editor profile path.
-2. If the active profile path cannot be determined from settings/profiles metadata, use editor and channel fallback candidates:
+1. Determine the active editor family and channel first (VS Code Stable, VS Code Insiders, or Cursor) from active app metadata, and keep that channel when resolving paths.
+2. Resolve `$VSCODE_PROFILE` using the active editor profile path for that same family/channel.
+3. If the active profile path cannot be determined from settings/profiles metadata, use editor and channel fallback candidates:
   - VS Code Windows Stable: `$Env:AppData\Code\User\`
   - VS Code Windows Insiders: `$Env:AppData\Code - Insiders\User\`
   - VS Code macOS Stable: `$HOME/Library/Application Support/Code/User/`
@@ -14,7 +15,7 @@ Use this reference from user-profile skills to resolve target scope and paths wi
   - Cursor Windows: `$Env:AppData\Cursor\User\`
   - Cursor macOS: `$HOME/Library/Application Support/Cursor/User/`
   - Cursor Linux: `$HOME/.config/Cursor/User/`
-3. Treat this resolved path as `$VSCODE_PROFILE` for compatibility with existing prompt/instruction conventions.
+4. Treat this resolved path as `$VSCODE_PROFILE` for compatibility with existing prompt/instruction conventions.
 
 ## Scope Modes
 - `workspace`: current repository/workspace files.
@@ -57,4 +58,4 @@ Use this reference from user-profile skills to resolve target scope and paths wi
 
 ## Backup Rule
 - Use exactly one `.bak` file per target file per change.
-- If `<filename>.bak` already exists, rotate it to `<filename>.bak.tmp` (deleting existing `.bak.tmp` first) before creating a new `.bak`.
+- If `<filename>.bak` already exists, replace its contents with the current pre-change contents of `<filename>`.

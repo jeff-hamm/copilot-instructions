@@ -17,6 +17,20 @@ function Normalize-Content {
   return ($Text -replace "`r`n", "`n").TrimEnd("`n")
 }
 
+function Expand-TemplateTokens {
+  param(
+    [string]$Content,
+    [hashtable]$TemplateMap
+  )
+
+  $expanded = $Content
+  foreach ($token in $TemplateMap.Keys) {
+    $expanded = $expanded.Replace($token, $TemplateMap[$token])
+  }
+
+  return $expanded
+}
+
 function Get-RelativePathNormalized {
   param(
     [string]$FullPath,
@@ -111,11 +125,17 @@ function Get-UserSkillSources {
   }
 
   $files = Get-ChildItem -LiteralPath $skillRoot -Recurse -File -Filter "*.md" | Sort-Object FullName
+  $profileResolutionPath = Join-Path $skillRoot "common/profile-resolution.md"
+  $profileResolutionContent = Read-Source -Path $profileResolutionPath
+  $templateMap = @{
+    '{{PROFILE_RESOLUTION_CONTENT}}' = $profileResolutionContent
+  }
   $result = @()
 
   foreach ($file in $files) {
     $relative = Get-RelativePathNormalized -FullPath $file.FullName -BasePath $skillRoot
     $content = Read-Source -Path $file.FullName
+    $content = Expand-TemplateTokens -Content $content -TemplateMap $templateMap
     $metadata = Get-SkillMetadataFromContent -Content $content
 
     $isSkill = ($file.Name -ieq "SKILL.md") -and -not [string]::IsNullOrWhiteSpace($metadata.Name)

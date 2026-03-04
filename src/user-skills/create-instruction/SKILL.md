@@ -9,7 +9,9 @@ argument-hint: 'scope=[workspace|global](default:global) name=<instruction-name>
 Create or update instruction files for workspace/profile/global targets.
 
 ## Shared Scope Resolution
-- Use [scope reference](../common/profile-resolution.md) to resolve supported profile/global/workspace instruction paths.
+Use the inlined scope/path reference below to resolve supported profile/global/workspace instruction paths.
+
+{{PROFILE_RESOLUTION_CONTENT}}
 
 ## Use When
 - You need to create `copilot-instructions.md` or `<name>.instructions.md`.
@@ -21,10 +23,10 @@ Create or update instruction files for workspace/profile/global targets.
 - `global` resolves to `$VSCODE_PROFILE/instructions/` in this setup.
 
 ## Required Workflow
-1. Resolve target scope and file path using [scope reference](../common/profile-resolution.md).
+1. Resolve target scope and file path using the inlined scope/path reference in this file.
 2. Check `git status` in target repo when git is available.
 3. Create exactly one backup file per change at `<filename>.bak`.
-4. If `<filename>.bak` exists, rotate to `<filename>.bak.tmp` before creating a new `.bak`.
+4. If `<filename>.bak` exists, replace its contents with the current pre-change contents of `<filename>`.
 5. Keep wording concise and non-duplicative.
 6. Validate that resulting file is clear and does not repeat existing rules.
 7. Show `git diff` and `git diff --stat`.

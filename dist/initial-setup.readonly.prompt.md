@@ -68,13 +68,13 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
 ## Backup
 - Before making a change to any file in `$VSCODE_PROFILE` or `$AGENTS_SKILLS_HOME`
   - check to see if the target path is in a git repository and has uncommitted changes with `git status`. If so, prompt me to review and commit or stash them first. If I'd like to commit them, create a commit message summarizing the changes and commit them.
-  - Create exactly one backup file per change at `<filename>.bak` before modifying any global file. If that file exists, rename it to `<filename>.bak.tmp` (delete existing `.bak.tmp` first) and then create a new `<filename>.bak`.
+  - Create exactly one backup file per change at `<filename>.bak` before modifying any global file. If that file exists, replace its contents with the current pre-change contents of `<filename>`.
 - After making changes:
   1. If the target path is in git, show the diff with `git diff <filename>` and summary with `git diff --stat <filename>`
   2. If the target path is not in git, show an equivalent before/after comparison
   3. Explain what changed and why
   4. Ask if I approve
-    - if no, revert it by renaming `<filename>.bak` to `<filename>` and `<filename>.bak.tmp` to `<filename>.bak`
+    - if no, revert it by restoring `<filename>` from `<filename>.bak`
     - if yes and target path is in git
       1. Stage the changes with `git add <filename>`
       2. Commit with a descriptive message using `git commit -m "..."`
@@ -228,13 +228,13 @@ Use this prompt whenever you view, edit or remove my global settings, instructio
 ## Backup
 - Before making a change to any file in `$VSCODE_PROFILE` or `$AGENTS_SKILLS_HOME`
   - check to see if the target path is in a git repository and has uncommitted changes with `git status`. If so, prompt me to review and commit or stash them first. If I'd like to commit them, create a commit message summarizing the changes and commit them.
-  - Create exactly one backup file per change at `<filename>.bak` before modifying any global file. If that file exists, rename it to `<filename>.bak.tmp` (delete existing `.bak.tmp` first) and then create a new `<filename>.bak`.
+  - Create exactly one backup file per change at `<filename>.bak` before modifying any global file. If that file exists, replace its contents with the current pre-change contents of `<filename>`.
 - After making changes:
   1. If the target path is in git, show the diff with `git diff <filename>` and summary with `git diff --stat <filename>`
   2. If the target path is not in git, show an equivalent before/after comparison
   3. Explain what changed and why
   4. Ask if I approve
-    - if no, revert it by renaming `<filename>.bak` to `<filename>` and `<filename>.bak.tmp` to `<filename>.bak`
+    - if no, revert it by restoring `<filename>` from `<filename>.bak`
     - if yes and target path is in git
       1. Stage the changes with `git add <filename>`
       2. Commit with a descriptive message using `git commit -m "..."`
@@ -337,8 +337,9 @@ Use this prompt when I ask you to use or work with a copilot branch.
 Use this reference from user-profile skills to resolve target scope and paths without duplicating logic across VS Code and Cursor.
 
 ## Resolve $VSCODE_PROFILE
-1. Resolve `$VSCODE_PROFILE` for VS Code or Cursor using the active editor profile path.
-2. If the active profile path cannot be determined from settings/profiles metadata, use editor and channel fallback candidates:
+1. Determine the active editor family and channel first (VS Code Stable, VS Code Insiders, or Cursor) from active app metadata, and keep that channel when resolving paths.
+2. Resolve `$VSCODE_PROFILE` using the active editor profile path for that same family/channel.
+3. If the active profile path cannot be determined from settings/profiles metadata, use editor and channel fallback candidates:
   - VS Code Windows Stable: `$Env:AppData\Code\User\`
   - VS Code Windows Insiders: `$Env:AppData\Code - Insiders\User\`
   - VS Code macOS Stable: `$HOME/Library/Application Support/Code/User/`
@@ -348,7 +349,7 @@ Use this reference from user-profile skills to resolve target scope and paths wi
   - Cursor Windows: `$Env:AppData\Cursor\User\`
   - Cursor macOS: `$HOME/Library/Application Support/Cursor/User/`
   - Cursor Linux: `$HOME/.config/Cursor/User/`
-3. Treat this resolved path as `$VSCODE_PROFILE` for compatibility with existing prompt/instruction conventions.
+4. Treat this resolved path as `$VSCODE_PROFILE` for compatibility with existing prompt/instruction conventions.
 
 ## Scope Modes
 - `workspace`: current repository/workspace files.
@@ -391,7 +392,7 @@ Use this reference from user-profile skills to resolve target scope and paths wi
 
 ## Backup Rule
 - Use exactly one `.bak` file per target file per change.
-- If `<filename>.bak` already exists, rotate it to `<filename>.bak.tmp` (deleting existing `.bak.tmp` first) before creating a new `.bak`.
+- If `<filename>.bak` already exists, replace its contents with the current pre-change contents of `<filename>`.
 ````
 
 ### .agents/skills/create-instruction/SKILL.md
@@ -407,7 +408,69 @@ argument-hint: 'scope=[workspace|global](default:global) name=<instruction-name>
 Create or update instruction files for workspace/profile/global targets.
 
 ## Shared Scope Resolution
-- Use [scope reference](../common/profile-resolution.md) to resolve supported profile/global/workspace instruction paths.
+Use the inlined scope/path reference below to resolve supported profile/global/workspace instruction paths.
+
+# Scope And Profile Resolution
+
+Use this reference from user-profile skills to resolve target scope and paths without duplicating logic across VS Code and Cursor.
+
+## Resolve $VSCODE_PROFILE
+1. Determine the active editor family and channel first (VS Code Stable, VS Code Insiders, or Cursor) from active app metadata, and keep that channel when resolving paths.
+2. Resolve `$VSCODE_PROFILE` using the active editor profile path for that same family/channel.
+3. If the active profile path cannot be determined from settings/profiles metadata, use editor and channel fallback candidates:
+  - VS Code Windows Stable: `$Env:AppData\Code\User\`
+  - VS Code Windows Insiders: `$Env:AppData\Code - Insiders\User\`
+  - VS Code macOS Stable: `$HOME/Library/Application Support/Code/User/`
+  - VS Code macOS Insiders: `$HOME/Library/Application Support/Code - Insiders/User/`
+  - VS Code Linux Stable: `$HOME/.config/Code/User/`
+  - VS Code Linux Insiders: `$HOME/.config/Code - Insiders/User/`
+  - Cursor Windows: `$Env:AppData\Cursor\User\`
+  - Cursor macOS: `$HOME/Library/Application Support/Cursor/User/`
+  - Cursor Linux: `$HOME/.config/Cursor/User/`
+4. Treat this resolved path as `$VSCODE_PROFILE` for compatibility with existing prompt/instruction conventions.
+
+## Scope Modes
+- `workspace`: current repository/workspace files.
+- `profile`: VS Code or Cursor profile-level user customizations.
+- `global`: managed global files under `$VSCODE_PROFILE` used by this setup.
+
+## Path Mapping
+
+### Settings And Config
+- `global`:
+  - `$VSCODE_PROFILE/settings.json`
+  - `$VSCODE_PROFILE/tasks.json`
+  - `$VSCODE_PROFILE/mcp.json`
+  - `$VSCODE_PROFILE/keybindings.json`
+- `workspace`:
+  - `.vscode/settings.json`
+  - `.vscode/tasks.json`
+  - `.vscode/mcp.json` (if used)
+  - `.vscode/keybindings.json` (if used)
+
+### Instructions
+- `global`, `profile` or `user`:
+  - `$VSCODE_PROFILE/instructions/`
+- `workspace`:
+  - `.github/instructions/*.instructions.md`
+  - or workspace-level `copilot-instructions.md` where applicable
+
+### Prompts
+- `global`, `profile` or `user`:
+  - `$VSCODE_PROFILE/prompts/*.prompt.md`
+- `workspace`:
+  - `.github/prompts/*.prompt.md`
+
+### Skills
+- `profile` (preferred default):
+  - `~/.agents/skills/<name>/SKILL.md`
+- `workspace`:
+  - `.agents/skills/<name>/SKILL.md`
+- Prefer `.agents/` over `.copilot/` or `.github/` for skills.
+
+## Backup Rule
+- Use exactly one `.bak` file per target file per change.
+- If `<filename>.bak` already exists, replace its contents with the current pre-change contents of `<filename>`.
 
 ## Use When
 - You need to create `copilot-instructions.md` or `<name>.instructions.md`.
@@ -419,10 +482,10 @@ Create or update instruction files for workspace/profile/global targets.
 - `global` resolves to `$VSCODE_PROFILE/instructions/` in this setup.
 
 ## Required Workflow
-1. Resolve target scope and file path using [scope reference](../common/profile-resolution.md).
+1. Resolve target scope and file path using the inlined scope/path reference in this file.
 2. Check `git status` in target repo when git is available.
 3. Create exactly one backup file per change at `<filename>.bak`.
-4. If `<filename>.bak` exists, rotate to `<filename>.bak.tmp` before creating a new `.bak`.
+4. If `<filename>.bak` exists, replace its contents with the current pre-change contents of `<filename>`.
 5. Keep wording concise and non-duplicative.
 6. Validate that resulting file is clear and does not repeat existing rules.
 7. Show `git diff` and `git diff --stat`.
@@ -447,7 +510,69 @@ argument-hint: 'scope=[workspace|global](default:global) name=<prompt-name>'
 Create or update reusable prompt files for workspace/profile/global targets.
 
 ## Shared Scope Resolution
-- Use [scope reference](../common/profile-resolution.md) for prompt path resolution.
+Use the inlined scope/path reference below for prompt path resolution.
+
+# Scope And Profile Resolution
+
+Use this reference from user-profile skills to resolve target scope and paths without duplicating logic across VS Code and Cursor.
+
+## Resolve $VSCODE_PROFILE
+1. Determine the active editor family and channel first (VS Code Stable, VS Code Insiders, or Cursor) from active app metadata, and keep that channel when resolving paths.
+2. Resolve `$VSCODE_PROFILE` using the active editor profile path for that same family/channel.
+3. If the active profile path cannot be determined from settings/profiles metadata, use editor and channel fallback candidates:
+  - VS Code Windows Stable: `$Env:AppData\Code\User\`
+  - VS Code Windows Insiders: `$Env:AppData\Code - Insiders\User\`
+  - VS Code macOS Stable: `$HOME/Library/Application Support/Code/User/`
+  - VS Code macOS Insiders: `$HOME/Library/Application Support/Code - Insiders/User/`
+  - VS Code Linux Stable: `$HOME/.config/Code/User/`
+  - VS Code Linux Insiders: `$HOME/.config/Code - Insiders/User/`
+  - Cursor Windows: `$Env:AppData\Cursor\User\`
+  - Cursor macOS: `$HOME/Library/Application Support/Cursor/User/`
+  - Cursor Linux: `$HOME/.config/Cursor/User/`
+4. Treat this resolved path as `$VSCODE_PROFILE` for compatibility with existing prompt/instruction conventions.
+
+## Scope Modes
+- `workspace`: current repository/workspace files.
+- `profile`: VS Code or Cursor profile-level user customizations.
+- `global`: managed global files under `$VSCODE_PROFILE` used by this setup.
+
+## Path Mapping
+
+### Settings And Config
+- `global`:
+  - `$VSCODE_PROFILE/settings.json`
+  - `$VSCODE_PROFILE/tasks.json`
+  - `$VSCODE_PROFILE/mcp.json`
+  - `$VSCODE_PROFILE/keybindings.json`
+- `workspace`:
+  - `.vscode/settings.json`
+  - `.vscode/tasks.json`
+  - `.vscode/mcp.json` (if used)
+  - `.vscode/keybindings.json` (if used)
+
+### Instructions
+- `global`, `profile` or `user`:
+  - `$VSCODE_PROFILE/instructions/`
+- `workspace`:
+  - `.github/instructions/*.instructions.md`
+  - or workspace-level `copilot-instructions.md` where applicable
+
+### Prompts
+- `global`, `profile` or `user`:
+  - `$VSCODE_PROFILE/prompts/*.prompt.md`
+- `workspace`:
+  - `.github/prompts/*.prompt.md`
+
+### Skills
+- `profile` (preferred default):
+  - `~/.agents/skills/<name>/SKILL.md`
+- `workspace`:
+  - `.agents/skills/<name>/SKILL.md`
+- Prefer `.agents/` over `.copilot/` or `.github/` for skills.
+
+## Backup Rule
+- Use exactly one `.bak` file per target file per change.
+- If `<filename>.bak` already exists, replace its contents with the current pre-change contents of `<filename>`.
 
 ## Use When
 - You need a new workflow prompt (`*.prompt.md`).
@@ -459,11 +584,11 @@ Create or update reusable prompt files for workspace/profile/global targets.
 - `global` resolves to `$VSCODE_PROFILE/prompts/` in this setup.
 
 ## Required Workflow
-1. Resolve target scope and file path using [scope reference](../common/profile-resolution.md).
+1. Resolve target scope and file path using the inlined scope/path reference in this file.
 2. Explore existing prompt files for overlap before adding a new file.
 3. Check `git status` in target repo when git is available.
 4. Create exactly one backup file per change at `<filename>.bak`.
-5. If `<filename>.bak` exists, rotate to `<filename>.bak.tmp` before creating a new `.bak`.
+5. If `<filename>.bak` exists, replace its contents with the current pre-change contents of `<filename>`.
 6. For markdown files ending in `.readonly.*.md`, add-only behavior applies.
 7. Show `git diff` and `git diff --stat`.
 8. Ask for approval before commit.
@@ -487,7 +612,69 @@ argument-hint: 'scope=[workspace|profile|global](default:profile) name=<skill-na
 Create or update skills for workspace/profile/global targets.
 
 ## Shared Scope Resolution
-- Use [scope reference](../common/profile-resolution.md) for skill target path resolution.
+Use the inlined scope/path reference below for skill target path resolution.
+
+# Scope And Profile Resolution
+
+Use this reference from user-profile skills to resolve target scope and paths without duplicating logic across VS Code and Cursor.
+
+## Resolve $VSCODE_PROFILE
+1. Determine the active editor family and channel first (VS Code Stable, VS Code Insiders, or Cursor) from active app metadata, and keep that channel when resolving paths.
+2. Resolve `$VSCODE_PROFILE` using the active editor profile path for that same family/channel.
+3. If the active profile path cannot be determined from settings/profiles metadata, use editor and channel fallback candidates:
+  - VS Code Windows Stable: `$Env:AppData\Code\User\`
+  - VS Code Windows Insiders: `$Env:AppData\Code - Insiders\User\`
+  - VS Code macOS Stable: `$HOME/Library/Application Support/Code/User/`
+  - VS Code macOS Insiders: `$HOME/Library/Application Support/Code - Insiders/User/`
+  - VS Code Linux Stable: `$HOME/.config/Code/User/`
+  - VS Code Linux Insiders: `$HOME/.config/Code - Insiders/User/`
+  - Cursor Windows: `$Env:AppData\Cursor\User\`
+  - Cursor macOS: `$HOME/Library/Application Support/Cursor/User/`
+  - Cursor Linux: `$HOME/.config/Cursor/User/`
+4. Treat this resolved path as `$VSCODE_PROFILE` for compatibility with existing prompt/instruction conventions.
+
+## Scope Modes
+- `workspace`: current repository/workspace files.
+- `profile`: VS Code or Cursor profile-level user customizations.
+- `global`: managed global files under `$VSCODE_PROFILE` used by this setup.
+
+## Path Mapping
+
+### Settings And Config
+- `global`:
+  - `$VSCODE_PROFILE/settings.json`
+  - `$VSCODE_PROFILE/tasks.json`
+  - `$VSCODE_PROFILE/mcp.json`
+  - `$VSCODE_PROFILE/keybindings.json`
+- `workspace`:
+  - `.vscode/settings.json`
+  - `.vscode/tasks.json`
+  - `.vscode/mcp.json` (if used)
+  - `.vscode/keybindings.json` (if used)
+
+### Instructions
+- `global`, `profile` or `user`:
+  - `$VSCODE_PROFILE/instructions/`
+- `workspace`:
+  - `.github/instructions/*.instructions.md`
+  - or workspace-level `copilot-instructions.md` where applicable
+
+### Prompts
+- `global`, `profile` or `user`:
+  - `$VSCODE_PROFILE/prompts/*.prompt.md`
+- `workspace`:
+  - `.github/prompts/*.prompt.md`
+
+### Skills
+- `profile` (preferred default):
+  - `~/.agents/skills/<name>/SKILL.md`
+- `workspace`:
+  - `.agents/skills/<name>/SKILL.md`
+- Prefer `.agents/` over `.copilot/` or `.github/` for skills.
+
+## Backup Rule
+- Use exactly one `.bak` file per target file per change.
+- If `<filename>.bak` already exists, replace its contents with the current pre-change contents of `<filename>`.
 
 ## Use When
 - You want reusable slash workflows beyond prompts.
@@ -495,13 +682,13 @@ Create or update skills for workspace/profile/global targets.
 - You need to refactor long prompt procedures into skill instructions.
 
 ## Required Workflow
-1. Resolve target scope/path using [scope reference](../common/profile-resolution.md).
+1. Resolve target scope/path using the inlined scope/path reference in this file.
 2. Prefer `.agents/` over `.copilot/` or `.github/` for skills.
 3. Create or update `SKILL.md` with valid frontmatter and concise procedure steps.
 4. Add scripts/references only when needed.
 5. Review for naming consistency (`name` should match folder).
 6. Create exactly one backup file per change at `<filename>.bak`.
-7. If `<filename>.bak` exists, rotate to `<filename>.bak.tmp` before creating a new `.bak`.
+7. If `<filename>.bak` exists, replace its contents with the current pre-change contents of `<filename>`.
 8. Show file diffs and ask for approval before committing profile-repo changes.
 
 ## Safety Rules
@@ -522,7 +709,69 @@ argument-hint: 'scope=[workspace|global](default:global) type=[setting|task|mcp|
 Edit VS Code or Cursor setting/config files using scope-aware path resolution and safe change controls.
 
 ## Shared Scope Resolution
-- Use [scope reference](../common/profile-resolution.md) to resolve `$VSCODE_PROFILE` and target files.
+Use the inlined scope/path reference below to resolve `$VSCODE_PROFILE` and target files.
+
+# Scope And Profile Resolution
+
+Use this reference from user-profile skills to resolve target scope and paths without duplicating logic across VS Code and Cursor.
+
+## Resolve $VSCODE_PROFILE
+1. Determine the active editor family and channel first (VS Code Stable, VS Code Insiders, or Cursor) from active app metadata, and keep that channel when resolving paths.
+2. Resolve `$VSCODE_PROFILE` using the active editor profile path for that same family/channel.
+3. If the active profile path cannot be determined from settings/profiles metadata, use editor and channel fallback candidates:
+  - VS Code Windows Stable: `$Env:AppData\Code\User\`
+  - VS Code Windows Insiders: `$Env:AppData\Code - Insiders\User\`
+  - VS Code macOS Stable: `$HOME/Library/Application Support/Code/User/`
+  - VS Code macOS Insiders: `$HOME/Library/Application Support/Code - Insiders/User/`
+  - VS Code Linux Stable: `$HOME/.config/Code/User/`
+  - VS Code Linux Insiders: `$HOME/.config/Code - Insiders/User/`
+  - Cursor Windows: `$Env:AppData\Cursor\User\`
+  - Cursor macOS: `$HOME/Library/Application Support/Cursor/User/`
+  - Cursor Linux: `$HOME/.config/Cursor/User/`
+4. Treat this resolved path as `$VSCODE_PROFILE` for compatibility with existing prompt/instruction conventions.
+
+## Scope Modes
+- `workspace`: current repository/workspace files.
+- `profile`: VS Code or Cursor profile-level user customizations.
+- `global`: managed global files under `$VSCODE_PROFILE` used by this setup.
+
+## Path Mapping
+
+### Settings And Config
+- `global`:
+  - `$VSCODE_PROFILE/settings.json`
+  - `$VSCODE_PROFILE/tasks.json`
+  - `$VSCODE_PROFILE/mcp.json`
+  - `$VSCODE_PROFILE/keybindings.json`
+- `workspace`:
+  - `.vscode/settings.json`
+  - `.vscode/tasks.json`
+  - `.vscode/mcp.json` (if used)
+  - `.vscode/keybindings.json` (if used)
+
+### Instructions
+- `global`, `profile` or `user`:
+  - `$VSCODE_PROFILE/instructions/`
+- `workspace`:
+  - `.github/instructions/*.instructions.md`
+  - or workspace-level `copilot-instructions.md` where applicable
+
+### Prompts
+- `global`, `profile` or `user`:
+  - `$VSCODE_PROFILE/prompts/*.prompt.md`
+- `workspace`:
+  - `.github/prompts/*.prompt.md`
+
+### Skills
+- `profile` (preferred default):
+  - `~/.agents/skills/<name>/SKILL.md`
+- `workspace`:
+  - `.agents/skills/<name>/SKILL.md`
+- Prefer `.agents/` over `.copilot/` or `.github/` for skills.
+
+## Backup Rule
+- Use exactly one `.bak` file per target file per change.
+- If `<filename>.bak` already exists, replace its contents with the current pre-change contents of `<filename>`.
 
 ## Use When
 - You need to update `settings.json`, `tasks.json`, or `mcp.json`.
@@ -531,10 +780,10 @@ Edit VS Code or Cursor setting/config files using scope-aware path resolution an
 - You want JSON-safe updates with explicit diff review.
 
 ## Required Workflow
-1. Resolve target scope and file path using [scope reference](../common/profile-resolution.md).
+1. Resolve target scope and file path using the inlined scope/path reference in this file.
 2. Check `git status` in the target repository when git is available.
 3. Create exactly one backup file per change at `<filename>.bak`.
-4. If `<filename>.bak` exists, rotate to `<filename>.bak.tmp` before creating a new `.bak`.
+4. If `<filename>.bak` exists, replace its contents with the current pre-change contents of `<filename>`.
 5. Read, parse, and modify JSON without duplicating existing values.
 6. Show `git diff <filename>` and `git diff --stat <filename>` (or equivalent before/after if not in git).
 7. Ask for approval before commit.

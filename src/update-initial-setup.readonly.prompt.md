@@ -41,7 +41,7 @@ You *ARE* allowed to edit or remove `dist/initial-setup.readonly.prompt.md` and 
    12. Write `dist/new-install.readonly.prompt.md` as a minimal prompt that instructs the agent to download raw `dist/initial-setup.readonly.prompt.md` from remote `origin` and run it as a prompt.
 3. Create backup before modifying:
    - Use exactly one `.bak` file for this change.
-   - If `dist/initial-setup.readonly.prompt.md.bak` exists, rename to `.bak.tmp` (delete `.bak.tmp` if it exists), then save current HEAD version to `.bak`
+   - If `dist/initial-setup.readonly.prompt.md.bak` exists, replace its contents with the current HEAD version before continuing
 4. Save the regenerated files and confirm each embedded block and the start of the file matches its source byte-for-byte (including VS Code Stable/Insiders, Cursor paths, dynamic prompt/skill sections, and generated global instructions).
 
 ## Verification and Commit

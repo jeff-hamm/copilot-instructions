@@ -9,7 +9,9 @@ argument-hint: 'scope=[workspace|global](default:global) name=<prompt-name>'
 Create or update reusable prompt files for workspace/profile/global targets.
 
 ## Shared Scope Resolution
-- Use [scope reference](../common/profile-resolution.md) for prompt path resolution.
+Use the inlined scope/path reference below for prompt path resolution.
+
+{{PROFILE_RESOLUTION_CONTENT}}
 
 ## Use When
 - You need a new workflow prompt (`*.prompt.md`).
@@ -21,11 +23,11 @@ Create or update reusable prompt files for workspace/profile/global targets.
 - `global` resolves to `$VSCODE_PROFILE/prompts/` in this setup.
 
 ## Required Workflow
-1. Resolve target scope and file path using [scope reference](../common/profile-resolution.md).
+1. Resolve target scope and file path using the inlined scope/path reference in this file.
 2. Explore existing prompt files for overlap before adding a new file.
 3. Check `git status` in target repo when git is available.
 4. Create exactly one backup file per change at `<filename>.bak`.
-5. If `<filename>.bak` exists, rotate to `<filename>.bak.tmp` before creating a new `.bak`.
+5. If `<filename>.bak` exists, replace its contents with the current pre-change contents of `<filename>`.
 6. For markdown files ending in `.readonly.*.md`, add-only behavior applies.
 7. Show `git diff` and `git diff --stat`.
 8. Ask for approval before commit.

@@ -9,7 +9,9 @@ argument-hint: 'scope=[workspace|global](default:global) type=[setting|task|mcp|
 Edit VS Code or Cursor setting/config files using scope-aware path resolution and safe change controls.
 
 ## Shared Scope Resolution
-- Use [scope reference](../common/profile-resolution.md) to resolve `$VSCODE_PROFILE` and target files.
+Use the inlined scope/path reference below to resolve `$VSCODE_PROFILE` and target files.
+
+{{PROFILE_RESOLUTION_CONTENT}}
 
 ## Use When
 - You need to update `settings.json`, `tasks.json`, or `mcp.json`.
@@ -18,10 +20,10 @@ Edit VS Code or Cursor setting/config files using scope-aware path resolution an
 - You want JSON-safe updates with explicit diff review.
 
 ## Required Workflow
-1. Resolve target scope and file path using [scope reference](../common/profile-resolution.md).
+1. Resolve target scope and file path using the inlined scope/path reference in this file.
 2. Check `git status` in the target repository when git is available.
 3. Create exactly one backup file per change at `<filename>.bak`.
-4. If `<filename>.bak` exists, rotate to `<filename>.bak.tmp` before creating a new `.bak`.
+4. If `<filename>.bak` exists, replace its contents with the current pre-change contents of `<filename>`.
 5. Read, parse, and modify JSON without duplicating existing values.
 6. Show `git diff <filename>` and `git diff --stat <filename>` (or equivalent before/after if not in git).
 7. Ask for approval before commit.
